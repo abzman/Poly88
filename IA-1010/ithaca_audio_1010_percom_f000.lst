@@ -1,0 +1,912 @@
+				;
+				;	Disassembled by:
+				;		DASMx object code disassembler
+				;		(c) Copyright 1996-2003   Conquest Consultants
+				;		Version 1.40 (Oct 18 2003)
+				;
+				;	File:		ithaca_audio_1010_percom_f000.bin
+				;
+				;	Size:		1024 bytes
+				;	Checksum:	4EA2
+				;	CRC-32:		4D4055A1
+				;
+				;	Date:		Sun Sep 15 14:05:14 2019
+				;
+				;	CPU:		Zilog Z80 (Z80 family)
+				;
+				;
+				;
+					org	0F000H
+				;
+F000 : C3 03 F0		"   "		jp	LF003
+				;
+F003				LF003:
+F003 : DB 01		"  "		in	a,(001H)
+F005 : 31 FF FF		"1  "		ld	sp,0FFFFH
+F008 : CD 0E F0		"   "		call	LF00E
+F00B : C3 03 F0		"   "		jp	LF003
+				;
+F00E				LF00E:
+F00E : AF		" "		xor	a
+F00F : D3 00		"  "		out	(000H),a
+F011 : CD DE F1		"   "		call	LF1DE
+F014 : 3E 3F		">?"		ld	a,03FH
+F016 : CD CE F1		"   "		call	LF1CE
+F019 : CD 9F F1		"   "		call	LF19F
+F01C : F5		" "		push	af
+F01D : CD CC F1		"   "		call	LF1CC
+F020 : F1		" "		pop	af
+F021 : FE 44		" D"		cp	044H
+F023 : CA 92 F0		"   "		jp	z,LF092
+F026 : FE 4E		" N"		cp	04EH
+F028 : CA 8E F0		"   "		jp	z,LF08E
+F02B : FE 4C		" L"		cp	04CH
+F02D : CA 03 F1		"   "		jp	z,LF103
+F030 : FE 56		" V"		cp	056H
+F032 : CA 03 F1		"   "		jp	z,LF103
+F035 : FE 4D		" M"		cp	04DH
+F037 : CA 46 F0		" F "		jp	z,LF046
+F03A : FE 43		" C"		cp	043H
+F03C : CA 67 F0		" g "		jp	z,LF067
+F03F : FE 47		" G"		cp	047H
+F041 : C0		" "		ret	nz
+F042 : CD C8 F0		"   "		call	LF0C8
+F045 : E9		" "		jp	(hl)						;INFO: index jump
+				;
+F046				LF046:
+F046 : CD DD F0		"   "		call	LF0DD
+F049				LF049:
+F049 : CD EF F0		"   "		call	LF0EF
+F04C : AF		" "		xor	a
+F04D : B8		" "		cp	b
+F04E : C8		" "		ret	z
+F04F : CD 50 F1		" P "		call	LF150
+F052 : CD CC F1		"   "		call	LF1CC
+F055				LF055:
+F055 : CD CC F1		"   "		call	LF1CC
+F058 : 7E		"~"		ld	a,(hl)
+F059 : CD AD F1		"   "		call	LF1AD
+F05C : 23		"#"		inc	hl
+F05D : 05		" "		dec	b
+F05E : C2 55 F0		" U "		jp	nz,LF055
+F061 : CD DE F1		"   "		call	LF1DE
+F064 : C3 49 F0		" I "		jp	LF049
+				;
+F067				LF067:
+F067 : 2B		"+"		dec	hl
+F068				LF068:
+F068 : 06 10		"  "		ld	b,010H
+F06A : CD DE F1		"   "		call	LF1DE
+F06D : CD 50 F1		" P "		call	LF150
+F070 : CD CC F1		"   "		call	LF1CC
+F073 : CD CC F1		"   "		call	LF1CC
+F076				LF076:
+F076 : EB		" "		ex	de,hl
+F077 : CD C8 F0		"   "		call	LF0C8
+F07A : EB		" "		ex	de,hl
+F07B : FE 2F		" /"		cp	02FH
+F07D : CA 68 F0		" h "		jp	z,LF068
+F080 : 73		"s"		ld	(hl),e
+F081 : 23		"#"		inc	hl
+F082 : 54		"T"		ld	d,h
+F083 : 5D		"]"		ld	e,l
+F084 : FE 0D		"  "		cp	00DH
+F086 : C8		" "		ret	z
+F087 : 05		" "		dec	b
+F088 : C2 76 F0		" v "		jp	nz,LF076
+F08B : C3 68 F0		" h "		jp	LF068
+				;
+F08E				LF08E:
+F08E : 13		" "		inc	de
+F08F : C3 49 F0		" I "		jp	LF049
+				;
+F092				LF092:
+F092 : CD DD F0		"   "		call	LF0DD
+F095 : 3E 02		"> "		ld	a,002H
+F097 : D3 00		"  "		out	(000H),a
+F099				LF099:
+F099 : CD DE F1		"   "		call	LF1DE
+F09C : 0E 00		"  "		ld	c,000H
+F09E : 3E 3A		">:"		ld	a,03AH
+F0A0 : CD CE F1		"   "		call	LF1CE
+F0A3 : CD EF F0		"   "		call	LF0EF
+F0A6 : 78		"x"		ld	a,b
+F0A7 : CD AD F1		"   "		call	LF1AD
+F0AA : CA DE F1		"   "		jp	z,LF1DE
+F0AD : CD 50 F1		" P "		call	LF150
+F0B0 : AF		" "		xor	a
+F0B1 : CD AD F1		"   "		call	LF1AD
+F0B4				LF0B4:
+F0B4 : 7E		"~"		ld	a,(hl)
+F0B5 : CD AD F1		"   "		call	LF1AD
+F0B8 : 23		"#"		inc	hl
+F0B9 : 05		" "		dec	b
+F0BA : C2 B4 F0		"   "		jp	nz,LF0B4
+F0BD : AF		" "		xor	a
+F0BE : 91		" "		sub	c
+F0BF : CD AD F1		"   "		call	LF1AD
+F0C2 : C3 99 F0		"   "		jp	LF099
+				;
+F0C5 : FF		" "		rst	L0038
+F0C6 : FF		" "		rst	L0038
+F0C7 : FF		" "		rst	L0038
+F0C8				LF0C8:
+F0C8 : 21 00 00		"!  "		ld	hl,00000H
+F0CB				LF0CB:
+F0CB : CD 9F F1		"   "		call	LF19F
+F0CE : FE 30		" 0"		cp	030H
+F0D0 : D8		" "		ret	c
+F0D1 : 29		")"		add	hl,hl
+F0D2 : 29		")"		add	hl,hl
+F0D3 : 29		")"		add	hl,hl
+F0D4 : 29		")"		add	hl,hl
+F0D5 : CD 97 F1		"   "		call	LF197
+F0D8 : 85		" "		add	a,l
+F0D9 : 6F		"o"		ld	l,a
+F0DA : C3 CB F0		"   "		jp	LF0CB
+				;
+F0DD				LF0DD:
+F0DD : CD C8 F0		"   "		call	LF0C8
+F0E0 : 5D		"]"		ld	e,l
+F0E1 : 54		"T"		ld	d,h
+F0E2 : FE 0D		"  "		cp	00DH
+F0E4 : CA EB F0		"   "		jp	z,LF0EB
+F0E7 : CD C8 F0		"   "		call	LF0C8
+F0EA : EB		" "		ex	de,hl
+F0EB				LF0EB:
+F0EB : 13		" "		inc	de
+F0EC : C3 DE F1		"   "		jp	LF1DE
+				;
+F0EF				LF0EF:
+F0EF : 7B		"{"		ld	a,e
+F0F0 : 95		" "		sub	l
+F0F1 : 47		"G"		ld	b,a
+F0F2 : 7A		"z"		ld	a,d
+F0F3 : 9C		" "		sbc	a,h
+F0F4 : 3E 10		"> "		ld	a,010H
+F0F6 : C2 FB F0		"   "		jp	nz,LF0FB
+F0F9 : B8		" "		cp	b
+F0FA : D0		" "		ret	nc
+F0FB				LF0FB:
+F0FB : 47		"G"		ld	b,a
+F0FC : C9		" "		ret
+				;
+F0FD : FF		" "		rst	L0038
+F0FE : FF		" "		rst	L0038
+F0FF : FF		" "		rst	L0038
+F100 : 31 FF CF		"1  "		ld	sp,0CFFFH
+F103				LF103:
+F103 : 57		"W"		ld	d,a
+F104 : 3E 01		"> "		ld	a,001H
+F106 : D3 00		"  "		out	(000H),a
+F108				LF108:
+F108 : CD 9F F1		"   "		call	LF19F
+F10B : FE 3A		" :"		cp	03AH
+F10D : C2 08 F1		"   "		jp	nz,LF108
+F110 : 0E 00		"  "		ld	c,000H
+F112 : CD 80 F1		"   "		call	LF180
+F115 : 47		"G"		ld	b,a
+F116 : CA 58 F1		" X "		jp	z,LF158
+F119 : CD 80 F1		"   "		call	LF180
+F11C : 67		"g"		ld	h,a
+F11D : CD 80 F1		"   "		call	LF180
+F120 : 6F		"o"		ld	l,a
+F121 : CD 80 F1		"   "		call	LF180
+F124				LF124:
+F124 : CD 80 F1		"   "		call	LF180
+F127 : 5F		"_"		ld	e,a
+F128 : 7A		"z"		ld	a,d
+F129 : FE 56		" V"		cp	056H
+F12B : 7B		"{"		ld	a,e
+F12C : CA 30 F1		" 0 "		jp	z,LF130
+F12F : 77		"w"		ld	(hl),a
+F130				LF130:
+F130 : BE		" "		cp	(hl)
+F131 : 1E 4D		" M"		ld	e,04DH
+F133 : C2 43 F1		" C "		jp	nz,LF143
+F136 : 23		"#"		inc	hl
+F137 : 05		" "		dec	b
+F138 : C2 24 F1		" $ "		jp	nz,LF124
+F13B : CD 80 F1		"   "		call	LF180
+F13E : 1E 58		" X"		ld	e,058H
+F140 : CA 08 F1		"   "		jp	z,LF108
+F143				LF143:
+F143 : AF		" "		xor	a
+F144 : D3 00		"  "		out	(000H),a
+F146 : CD DE F1		"   "		call	LF1DE
+F149 : 7B		"{"		ld	a,e
+F14A : CD CE F1		"   "		call	LF1CE
+F14D : CD CC F1		"   "		call	LF1CC
+F150				LF150:
+F150 : 7C		"|"		ld	a,h
+F151 : CD AD F1		"   "		call	LF1AD
+F154 : 7D		"}"		ld	a,l
+F155 : C3 AD F1		"   "		jp	LF1AD
+				;
+F158				LF158:
+F158 : 7A		"z"		ld	a,d
+F159 : FE 52		" R"		cp	052H
+F15B : C8		" "		ret	z
+F15C : CD 9F F1		"   "		call	LF19F
+F15F : FE 0D		"  "		cp	00DH
+F161 : C8		" "		ret	z
+F162 : CD 83 F1		"   "		call	LF183
+F165 : 67		"g"		ld	h,a
+F166 : CD 80 F1		"   "		call	LF180
+F169 : 6F		"o"		ld	l,a
+F16A : CD 80 F1		"   "		call	LF180
+F16D : 1E 58		" X"		ld	e,058H
+F16F : C2 43 F1		" C "		jp	nz,LF143
+F172 : AF		" "		xor	a
+F173 : D3 00		"  "		out	(000H),a
+F175 : F1		" "		pop	af
+F176 : E9		" "		jp	(hl)						;INFO: index jump
+				;
+F177 : FF		" "		rst	L0038
+F178 : FF		" "		rst	L0038
+F179 : FF		" "		rst	L0038
+F17A : FF		" "		rst	L0038
+F17B : FF		" "		rst	L0038
+F17C : FF		" "		rst	L0038
+F17D : FF		" "		rst	L0038
+F17E : FF		" "		rst	L0038
+F17F : FF		" "		rst	L0038
+F180				LF180:
+F180 : CD 9F F1		"   "		call	LF19F
+F183				LF183:
+F183 : CD 97 F1		"   "		call	LF197
+F186 : 07		" "		rlca
+F187 : 17		" "		rla
+F188 : 17		" "		rla
+F189 : 17		" "		rla
+F18A : 5F		"_"		ld	e,a
+F18B : CD 9F F1		"   "		call	LF19F
+F18E : CD 97 F1		"   "		call	LF197
+F191 : 83		" "		add	a,e
+F192 : 5F		"_"		ld	e,a
+F193 : 81		" "		add	a,c
+F194 : 4F		"O"		ld	c,a
+F195 : 7B		"{"		ld	a,e
+F196 : C9		" "		ret
+				;
+F197				LF197:
+F197 : D6 30		" 0"		sub	030H
+F199 : FE 0A		"  "		cp	00AH
+F19B : D8		" "		ret	c
+F19C : D6 07		"  "		sub	007H
+F19E : C9		" "		ret
+				;
+F19F				LF19F:
+F19F : DB 00		"  "		in	a,(000H)
+F1A1 : E6 40		" @"		and	040H
+F1A3 : CA 9F F1		"   "		jp	z,LF19F
+F1A6 : DB 01		"  "		in	a,(001H)
+F1A8 : D3 01		"  "		out	(001H),a
+F1AA : E6 7F		"  "		and	07FH
+F1AC : C9		" "		ret
+				;
+F1AD				LF1AD:
+F1AD : F5		" "		push	af
+F1AE : 0F		" "		rrca
+F1AF : 0F		" "		rrca
+F1B0 : 0F		" "		rrca
+F1B1 : 0F		" "		rrca
+F1B2 : CD BE F1		"   "		call	LF1BE
+F1B5 : F1		" "		pop	af
+F1B6 : F5		" "		push	af
+F1B7 : CD BE F1		"   "		call	LF1BE
+F1BA : F1		" "		pop	af
+F1BB : 81		" "		add	a,c
+F1BC : 4F		"O"		ld	c,a
+F1BD : C9		" "		ret
+				;
+F1BE				LF1BE:
+F1BE : E6 0F		"  "		and	00FH
+F1C0 : C6 30		" 0"		add	a,030H
+F1C2 : FE 3A		" :"		cp	03AH
+F1C4 : DA CE F1		"   "		jp	c,LF1CE
+F1C7 : C6 07		"  "		add	a,007H
+F1C9 : C3 CE F1		"   "		jp	LF1CE
+				;
+F1CC				LF1CC:
+F1CC : 3E 20		"> "		ld	a,020H
+F1CE				LF1CE:
+F1CE : F5		" "		push	af
+F1CF				LF1CF:
+F1CF : DB 00		"  "		in	a,(000H)
+F1D1 : 07		" "		rlca
+F1D2 : D2 CF F1		"   "		jp	nc,LF1CF
+F1D5 : 07		" "		rlca
+F1D6 : 00		" "		nop
+F1D7 : DA 03 F0		"   "		jp	c,LF003
+F1DA : F1		" "		pop	af
+F1DB : D3 01		"  "		out	(001H),a
+F1DD : C9		" "		ret
+				;
+F1DE				LF1DE:
+F1DE : 3E 0D		"> "		ld	a,00DH
+F1E0 : CD CE F1		"   "		call	LF1CE
+F1E3 : 3E 0A		"> "		ld	a,00AH
+F1E5 : CD CE F1		"   "		call	LF1CE
+F1E8 : AF		" "		xor	a
+F1E9 : C3 CE F1		"   "		jp	LF1CE
+				;
+F1EC : FF		" "		rst	L0038
+F1ED : FF		" "		rst	L0038
+F1EE : FF		" "		rst	L0038
+F1EF : FF		" "		rst	L0038
+F1F0 : FF		" "		rst	L0038
+F1F1 : FF		" "		rst	L0038
+F1F2 : FF		" "		rst	L0038
+F1F3 : FF		" "		rst	L0038
+F1F4 : FF		" "		rst	L0038
+F1F5 : FF		" "		rst	L0038
+F1F6 : FF		" "		rst	L0038
+F1F7 : FF		" "		rst	L0038
+F1F8 : FF		" "		rst	L0038
+F1F9 : FF		" "		rst	L0038
+F1FA : FF		" "		rst	L0038
+F1FB : FF		" "		rst	L0038
+F1FC : FF		" "		rst	L0038
+F1FD : FF		" "		rst	L0038
+F1FE : FF		" "		rst	L0038
+F1FF : FF		" "		rst	L0038
+F200 : FF		" "		rst	L0038
+F201 : FF		" "		rst	L0038
+F202 : FF		" "		rst	L0038
+F203 : FF		" "		rst	L0038
+F204 : FF		" "		rst	L0038
+F205 : FF		" "		rst	L0038
+F206 : FF		" "		rst	L0038
+F207 : FF		" "		rst	L0038
+F208 : FF		" "		rst	L0038
+F209 : FF		" "		rst	L0038
+F20A : FF		" "		rst	L0038
+F20B : FF		" "		rst	L0038
+F20C : FF		" "		rst	L0038
+F20D : FF		" "		rst	L0038
+F20E : FF		" "		rst	L0038
+F20F : FF		" "		rst	L0038
+F210 : FF		" "		rst	L0038
+F211 : FF		" "		rst	L0038
+F212 : FF		" "		rst	L0038
+F213 : FF		" "		rst	L0038
+F214 : FF		" "		rst	L0038
+F215 : FF		" "		rst	L0038
+F216 : FF		" "		rst	L0038
+F217 : FF		" "		rst	L0038
+F218 : FF		" "		rst	L0038
+F219 : FF		" "		rst	L0038
+F21A : FF		" "		rst	L0038
+F21B : FF		" "		rst	L0038
+F21C : FF		" "		rst	L0038
+F21D : FF		" "		rst	L0038
+F21E : FF		" "		rst	L0038
+F21F : FF		" "		rst	L0038
+F220 : FF		" "		rst	L0038
+F221 : FF		" "		rst	L0038
+F222 : FF		" "		rst	L0038
+F223 : FF		" "		rst	L0038
+F224 : FF		" "		rst	L0038
+F225 : FF		" "		rst	L0038
+F226 : FF		" "		rst	L0038
+F227 : FF		" "		rst	L0038
+F228 : FF		" "		rst	L0038
+F229 : FF		" "		rst	L0038
+F22A : FF		" "		rst	L0038
+F22B : FF		" "		rst	L0038
+F22C : FF		" "		rst	L0038
+F22D : FF		" "		rst	L0038
+F22E : FF		" "		rst	L0038
+F22F : FF		" "		rst	L0038
+F230 : FF		" "		rst	L0038
+F231 : FF		" "		rst	L0038
+F232 : FF		" "		rst	L0038
+F233 : FF		" "		rst	L0038
+F234 : FF		" "		rst	L0038
+F235 : FF		" "		rst	L0038
+F236 : FF		" "		rst	L0038
+F237 : FF		" "		rst	L0038
+F238 : FF		" "		rst	L0038
+F239 : FF		" "		rst	L0038
+F23A : FF		" "		rst	L0038
+F23B : FF		" "		rst	L0038
+F23C : FF		" "		rst	L0038
+F23D : FF		" "		rst	L0038
+F23E : FF		" "		rst	L0038
+F23F : FF		" "		rst	L0038
+F240 : FF		" "		rst	L0038
+F241 : FF		" "		rst	L0038
+F242 : FF		" "		rst	L0038
+F243 : FF		" "		rst	L0038
+F244 : FF		" "		rst	L0038
+F245 : FF		" "		rst	L0038
+F246 : FF		" "		rst	L0038
+F247 : FF		" "		rst	L0038
+F248 : FF		" "		rst	L0038
+F249 : FF		" "		rst	L0038
+F24A : FF		" "		rst	L0038
+F24B : FF		" "		rst	L0038
+F24C : FF		" "		rst	L0038
+F24D : FF		" "		rst	L0038
+F24E : FF		" "		rst	L0038
+F24F : FF		" "		rst	L0038
+F250 : FF		" "		rst	L0038
+F251 : FF		" "		rst	L0038
+F252 : FF		" "		rst	L0038
+F253 : FF		" "		rst	L0038
+F254 : FF		" "		rst	L0038
+F255 : FF		" "		rst	L0038
+F256 : FF		" "		rst	L0038
+F257 : FF		" "		rst	L0038
+F258 : FF		" "		rst	L0038
+F259 : FF		" "		rst	L0038
+F25A : FF		" "		rst	L0038
+F25B : FF		" "		rst	L0038
+F25C : FF		" "		rst	L0038
+F25D : FF		" "		rst	L0038
+F25E : FF		" "		rst	L0038
+F25F : FF		" "		rst	L0038
+F260 : FF		" "		rst	L0038
+F261 : FF		" "		rst	L0038
+F262 : FF		" "		rst	L0038
+F263 : FF		" "		rst	L0038
+F264 : FF		" "		rst	L0038
+F265 : FF		" "		rst	L0038
+F266 : FF		" "		rst	L0038
+F267 : FF		" "		rst	L0038
+F268 : FF		" "		rst	L0038
+F269 : FF		" "		rst	L0038
+F26A : FF		" "		rst	L0038
+F26B : FF		" "		rst	L0038
+F26C : FF		" "		rst	L0038
+F26D : FF		" "		rst	L0038
+F26E : FF		" "		rst	L0038
+F26F : FF		" "		rst	L0038
+F270 : FF		" "		rst	L0038
+F271 : FF		" "		rst	L0038
+F272 : FF		" "		rst	L0038
+F273 : FF		" "		rst	L0038
+F274 : FF		" "		rst	L0038
+F275 : FF		" "		rst	L0038
+F276 : FF		" "		rst	L0038
+F277 : FF		" "		rst	L0038
+F278 : FF		" "		rst	L0038
+F279 : FF		" "		rst	L0038
+F27A : FF		" "		rst	L0038
+F27B : FF		" "		rst	L0038
+F27C : FF		" "		rst	L0038
+F27D : FF		" "		rst	L0038
+F27E : FF		" "		rst	L0038
+F27F : FF		" "		rst	L0038
+F280 : FF		" "		rst	L0038
+F281 : FF		" "		rst	L0038
+F282 : FF		" "		rst	L0038
+F283 : FF		" "		rst	L0038
+F284 : FF		" "		rst	L0038
+F285 : FF		" "		rst	L0038
+F286 : FF		" "		rst	L0038
+F287 : FF		" "		rst	L0038
+F288 : FF		" "		rst	L0038
+F289 : FF		" "		rst	L0038
+F28A : FF		" "		rst	L0038
+F28B : FF		" "		rst	L0038
+F28C : FF		" "		rst	L0038
+F28D : FF		" "		rst	L0038
+F28E : FF		" "		rst	L0038
+F28F : FF		" "		rst	L0038
+F290 : FF		" "		rst	L0038
+F291 : FF		" "		rst	L0038
+F292 : FF		" "		rst	L0038
+F293 : FF		" "		rst	L0038
+F294 : FF		" "		rst	L0038
+F295 : FF		" "		rst	L0038
+F296 : FF		" "		rst	L0038
+F297 : FF		" "		rst	L0038
+F298 : FF		" "		rst	L0038
+F299 : FF		" "		rst	L0038
+F29A : FF		" "		rst	L0038
+F29B : FF		" "		rst	L0038
+F29C : FF		" "		rst	L0038
+F29D : FF		" "		rst	L0038
+F29E : FF		" "		rst	L0038
+F29F : FF		" "		rst	L0038
+F2A0 : FF		" "		rst	L0038
+F2A1 : FF		" "		rst	L0038
+F2A2 : FF		" "		rst	L0038
+F2A3 : FF		" "		rst	L0038
+F2A4 : FF		" "		rst	L0038
+F2A5 : FF		" "		rst	L0038
+F2A6 : FF		" "		rst	L0038
+F2A7 : FF		" "		rst	L0038
+F2A8 : FF		" "		rst	L0038
+F2A9 : FF		" "		rst	L0038
+F2AA : FF		" "		rst	L0038
+F2AB : FF		" "		rst	L0038
+F2AC : FF		" "		rst	L0038
+F2AD : FF		" "		rst	L0038
+F2AE : FF		" "		rst	L0038
+F2AF : FF		" "		rst	L0038
+F2B0 : FF		" "		rst	L0038
+F2B1 : FF		" "		rst	L0038
+F2B2 : FF		" "		rst	L0038
+F2B3 : FF		" "		rst	L0038
+F2B4 : FF		" "		rst	L0038
+F2B5 : FF		" "		rst	L0038
+F2B6 : FF		" "		rst	L0038
+F2B7 : FF		" "		rst	L0038
+F2B8 : FF		" "		rst	L0038
+F2B9 : FF		" "		rst	L0038
+F2BA : FF		" "		rst	L0038
+F2BB : FF		" "		rst	L0038
+F2BC : FF		" "		rst	L0038
+F2BD : FF		" "		rst	L0038
+F2BE : FF		" "		rst	L0038
+F2BF : FF		" "		rst	L0038
+F2C0 : FF		" "		rst	L0038
+F2C1 : FF		" "		rst	L0038
+F2C2 : FF		" "		rst	L0038
+F2C3 : FF		" "		rst	L0038
+F2C4 : FF		" "		rst	L0038
+F2C5 : FF		" "		rst	L0038
+F2C6 : FF		" "		rst	L0038
+F2C7 : FF		" "		rst	L0038
+F2C8 : FF		" "		rst	L0038
+F2C9 : FF		" "		rst	L0038
+F2CA : FF		" "		rst	L0038
+F2CB : FF		" "		rst	L0038
+F2CC : FF		" "		rst	L0038
+F2CD : FF		" "		rst	L0038
+F2CE : FF		" "		rst	L0038
+F2CF : FF		" "		rst	L0038
+F2D0 : FF		" "		rst	L0038
+F2D1 : FF		" "		rst	L0038
+F2D2 : FF		" "		rst	L0038
+F2D3 : FF		" "		rst	L0038
+F2D4 : FF		" "		rst	L0038
+F2D5 : FF		" "		rst	L0038
+F2D6 : FF		" "		rst	L0038
+F2D7 : FF		" "		rst	L0038
+F2D8 : FF		" "		rst	L0038
+F2D9 : FF		" "		rst	L0038
+F2DA : FF		" "		rst	L0038
+F2DB : FF		" "		rst	L0038
+F2DC : FF		" "		rst	L0038
+F2DD : FF		" "		rst	L0038
+F2DE : FF		" "		rst	L0038
+F2DF : FF		" "		rst	L0038
+F2E0 : FF		" "		rst	L0038
+F2E1 : FF		" "		rst	L0038
+F2E2 : FF		" "		rst	L0038
+F2E3 : FF		" "		rst	L0038
+F2E4 : FF		" "		rst	L0038
+F2E5 : FF		" "		rst	L0038
+F2E6 : FF		" "		rst	L0038
+F2E7 : FF		" "		rst	L0038
+F2E8 : FF		" "		rst	L0038
+F2E9 : FF		" "		rst	L0038
+F2EA : FF		" "		rst	L0038
+F2EB : FF		" "		rst	L0038
+F2EC : FF		" "		rst	L0038
+F2ED : FF		" "		rst	L0038
+F2EE : FF		" "		rst	L0038
+F2EF : FF		" "		rst	L0038
+F2F0 : FF		" "		rst	L0038
+F2F1 : FF		" "		rst	L0038
+F2F2 : FF		" "		rst	L0038
+F2F3 : FF		" "		rst	L0038
+F2F4 : FF		" "		rst	L0038
+F2F5 : FF		" "		rst	L0038
+F2F6 : FF		" "		rst	L0038
+F2F7 : FF		" "		rst	L0038
+F2F8 : FF		" "		rst	L0038
+F2F9 : FF		" "		rst	L0038
+F2FA : FF		" "		rst	L0038
+F2FB : FF		" "		rst	L0038
+F2FC : FF		" "		rst	L0038
+F2FD : FF		" "		rst	L0038
+F2FE : FF		" "		rst	L0038
+F2FF : FF		" "		rst	L0038
+F300 : FF		" "		rst	L0038
+F301 : FF		" "		rst	L0038
+F302 : FF		" "		rst	L0038
+F303 : FF		" "		rst	L0038
+F304 : FF		" "		rst	L0038
+F305 : FF		" "		rst	L0038
+F306 : FF		" "		rst	L0038
+F307 : FF		" "		rst	L0038
+F308 : FF		" "		rst	L0038
+F309 : FF		" "		rst	L0038
+F30A : FF		" "		rst	L0038
+F30B : FF		" "		rst	L0038
+F30C : FF		" "		rst	L0038
+F30D : FF		" "		rst	L0038
+F30E : FF		" "		rst	L0038
+F30F : FF		" "		rst	L0038
+F310 : FF		" "		rst	L0038
+F311 : FF		" "		rst	L0038
+F312 : FF		" "		rst	L0038
+F313 : FF		" "		rst	L0038
+F314 : FF		" "		rst	L0038
+F315 : FF		" "		rst	L0038
+F316 : FF		" "		rst	L0038
+F317 : FF		" "		rst	L0038
+F318 : FF		" "		rst	L0038
+F319 : FF		" "		rst	L0038
+F31A : FF		" "		rst	L0038
+F31B : FF		" "		rst	L0038
+F31C : FF		" "		rst	L0038
+F31D : FF		" "		rst	L0038
+F31E : FF		" "		rst	L0038
+F31F : FF		" "		rst	L0038
+F320 : FF		" "		rst	L0038
+F321 : FF		" "		rst	L0038
+F322 : FF		" "		rst	L0038
+F323 : FF		" "		rst	L0038
+F324 : FF		" "		rst	L0038
+F325 : FF		" "		rst	L0038
+F326 : FF		" "		rst	L0038
+F327 : FF		" "		rst	L0038
+F328 : FF		" "		rst	L0038
+F329 : FF		" "		rst	L0038
+F32A : FF		" "		rst	L0038
+F32B : FF		" "		rst	L0038
+F32C : FF		" "		rst	L0038
+F32D : FF		" "		rst	L0038
+F32E : FF		" "		rst	L0038
+F32F : FF		" "		rst	L0038
+F330 : FF		" "		rst	L0038
+F331 : FF		" "		rst	L0038
+F332 : FF		" "		rst	L0038
+F333 : FF		" "		rst	L0038
+F334 : FF		" "		rst	L0038
+F335 : FF		" "		rst	L0038
+F336 : FF		" "		rst	L0038
+F337 : FF		" "		rst	L0038
+F338 : FF		" "		rst	L0038
+F339 : FF		" "		rst	L0038
+F33A : FF		" "		rst	L0038
+F33B : FF		" "		rst	L0038
+F33C : FF		" "		rst	L0038
+F33D : FF		" "		rst	L0038
+F33E : FF		" "		rst	L0038
+F33F : FF		" "		rst	L0038
+F340 : FF		" "		rst	L0038
+F341 : FF		" "		rst	L0038
+F342 : FF		" "		rst	L0038
+F343 : FF		" "		rst	L0038
+F344 : FF		" "		rst	L0038
+F345 : FF		" "		rst	L0038
+F346 : FF		" "		rst	L0038
+F347 : FF		" "		rst	L0038
+F348 : FF		" "		rst	L0038
+F349 : FF		" "		rst	L0038
+F34A : FF		" "		rst	L0038
+F34B : FF		" "		rst	L0038
+F34C : FF		" "		rst	L0038
+F34D : FF		" "		rst	L0038
+F34E : FF		" "		rst	L0038
+F34F : FF		" "		rst	L0038
+F350 : FF		" "		rst	L0038
+F351 : FF		" "		rst	L0038
+F352 : FF		" "		rst	L0038
+F353 : FF		" "		rst	L0038
+F354 : FF		" "		rst	L0038
+F355 : FF		" "		rst	L0038
+F356 : FF		" "		rst	L0038
+F357 : FF		" "		rst	L0038
+F358 : FF		" "		rst	L0038
+F359 : FF		" "		rst	L0038
+F35A : FF		" "		rst	L0038
+F35B : FF		" "		rst	L0038
+F35C : FF		" "		rst	L0038
+F35D : FF		" "		rst	L0038
+F35E : FF		" "		rst	L0038
+F35F : FF		" "		rst	L0038
+F360 : FF		" "		rst	L0038
+F361 : FF		" "		rst	L0038
+F362 : FF		" "		rst	L0038
+F363 : FF		" "		rst	L0038
+F364 : FF		" "		rst	L0038
+F365 : FF		" "		rst	L0038
+F366 : FF		" "		rst	L0038
+F367 : FF		" "		rst	L0038
+F368 : FF		" "		rst	L0038
+F369 : FF		" "		rst	L0038
+F36A : FF		" "		rst	L0038
+F36B : FF		" "		rst	L0038
+F36C : FF		" "		rst	L0038
+F36D : FF		" "		rst	L0038
+F36E : FF		" "		rst	L0038
+F36F : FF		" "		rst	L0038
+F370 : FF		" "		rst	L0038
+F371 : FF		" "		rst	L0038
+F372 : FF		" "		rst	L0038
+F373 : FF		" "		rst	L0038
+F374 : FF		" "		rst	L0038
+F375 : FF		" "		rst	L0038
+F376 : FF		" "		rst	L0038
+F377 : FF		" "		rst	L0038
+F378 : FF		" "		rst	L0038
+F379 : FF		" "		rst	L0038
+F37A : FF		" "		rst	L0038
+F37B : FF		" "		rst	L0038
+F37C : FF		" "		rst	L0038
+F37D : FF		" "		rst	L0038
+F37E : FF		" "		rst	L0038
+F37F : FF		" "		rst	L0038
+F380 : FF		" "		rst	L0038
+F381 : FF		" "		rst	L0038
+F382 : FF		" "		rst	L0038
+F383 : FF		" "		rst	L0038
+F384 : FF		" "		rst	L0038
+F385 : FF		" "		rst	L0038
+F386 : FF		" "		rst	L0038
+F387 : FF		" "		rst	L0038
+F388 : FF		" "		rst	L0038
+F389 : FF		" "		rst	L0038
+F38A : FF		" "		rst	L0038
+F38B : FF		" "		rst	L0038
+F38C : FF		" "		rst	L0038
+F38D : FF		" "		rst	L0038
+F38E : FF		" "		rst	L0038
+F38F : FF		" "		rst	L0038
+F390 : FF		" "		rst	L0038
+F391 : FF		" "		rst	L0038
+F392 : FF		" "		rst	L0038
+F393 : FF		" "		rst	L0038
+F394 : FF		" "		rst	L0038
+F395 : FF		" "		rst	L0038
+F396 : FF		" "		rst	L0038
+F397 : FF		" "		rst	L0038
+F398 : FF		" "		rst	L0038
+F399 : FF		" "		rst	L0038
+F39A : FF		" "		rst	L0038
+F39B : FF		" "		rst	L0038
+F39C : FF		" "		rst	L0038
+F39D : FF		" "		rst	L0038
+F39E : FF		" "		rst	L0038
+F39F : FF		" "		rst	L0038
+F3A0 : FF		" "		rst	L0038
+F3A1 : FF		" "		rst	L0038
+F3A2 : FF		" "		rst	L0038
+F3A3 : FF		" "		rst	L0038
+F3A4 : FF		" "		rst	L0038
+F3A5 : FF		" "		rst	L0038
+F3A6 : FF		" "		rst	L0038
+F3A7 : FF		" "		rst	L0038
+F3A8 : FF		" "		rst	L0038
+F3A9 : FF		" "		rst	L0038
+F3AA : FF		" "		rst	L0038
+F3AB : FF		" "		rst	L0038
+F3AC : FF		" "		rst	L0038
+F3AD : FF		" "		rst	L0038
+F3AE : FF		" "		rst	L0038
+F3AF : FF		" "		rst	L0038
+F3B0 : FF		" "		rst	L0038
+F3B1 : FF		" "		rst	L0038
+F3B2 : FF		" "		rst	L0038
+F3B3 : FF		" "		rst	L0038
+F3B4 : FF		" "		rst	L0038
+F3B5 : FF		" "		rst	L0038
+F3B6 : FF		" "		rst	L0038
+F3B7 : FF		" "		rst	L0038
+F3B8 : FF		" "		rst	L0038
+F3B9 : FF		" "		rst	L0038
+F3BA : FF		" "		rst	L0038
+F3BB : FF		" "		rst	L0038
+F3BC : FF		" "		rst	L0038
+F3BD : FF		" "		rst	L0038
+F3BE : FF		" "		rst	L0038
+F3BF : FF		" "		rst	L0038
+F3C0 : FF		" "		rst	L0038
+F3C1 : FF		" "		rst	L0038
+F3C2 : FF		" "		rst	L0038
+F3C3 : FF		" "		rst	L0038
+F3C4 : FF		" "		rst	L0038
+F3C5 : FF		" "		rst	L0038
+F3C6 : FF		" "		rst	L0038
+F3C7 : FF		" "		rst	L0038
+F3C8 : FF		" "		rst	L0038
+F3C9 : FF		" "		rst	L0038
+F3CA : FF		" "		rst	L0038
+F3CB : FF		" "		rst	L0038
+F3CC : FF		" "		rst	L0038
+F3CD : FF		" "		rst	L0038
+F3CE : FF		" "		rst	L0038
+F3CF : FF		" "		rst	L0038
+F3D0 : FF		" "		rst	L0038
+F3D1 : FF		" "		rst	L0038
+F3D2 : FF		" "		rst	L0038
+F3D3 : FF		" "		rst	L0038
+F3D4 : FF		" "		rst	L0038
+F3D5 : FF		" "		rst	L0038
+F3D6 : FF		" "		rst	L0038
+F3D7 : FF		" "		rst	L0038
+F3D8 : FF		" "		rst	L0038
+F3D9 : FF		" "		rst	L0038
+F3DA : FF		" "		rst	L0038
+F3DB : FF		" "		rst	L0038
+F3DC : FF		" "		rst	L0038
+F3DD : FF		" "		rst	L0038
+F3DE : FF		" "		rst	L0038
+F3DF : FF		" "		rst	L0038
+F3E0 : FF		" "		rst	L0038
+F3E1 : FF		" "		rst	L0038
+F3E2 : FF		" "		rst	L0038
+F3E3 : FF		" "		rst	L0038
+F3E4 : FF		" "		rst	L0038
+F3E5 : FF		" "		rst	L0038
+F3E6 : FF		" "		rst	L0038
+F3E7 : FF		" "		rst	L0038
+F3E8 : FF		" "		rst	L0038
+F3E9 : FF		" "		rst	L0038
+F3EA : FF		" "		rst	L0038
+F3EB : FF		" "		rst	L0038
+F3EC : FF		" "		rst	L0038
+F3ED : FF		" "		rst	L0038
+F3EE : FF		" "		rst	L0038
+F3EF : FF		" "		rst	L0038
+F3F0 : FF		" "		rst	L0038
+F3F1 : FF		" "		rst	L0038
+F3F2 : FF		" "		rst	L0038
+F3F3 : FF		" "		rst	L0038
+F3F4 : FF		" "		rst	L0038
+F3F5 : FF		" "		rst	L0038
+F3F6 : FF		" "		rst	L0038
+F3F7 : FF		" "		rst	L0038
+F3F8 : FF		" "		rst	L0038
+F3F9 : FF		" "		rst	L0038
+F3FA : FF		" "		rst	L0038
+F3FB : FF		" "		rst	L0038
+F3FC : FF		" "		rst	L0038
+F3FD : FF		" "		rst	L0038
+F3FE : FF		" "		rst	L0038
+F3FF : FF		" "		rst	L0038
+
+;--------------------------------------------------------------
+Symbol table
+============
+
+Value		Type	Name
+-----		----	----
+0038		Code	L0038
+F003		Code	LF003
+F00E		Code	LF00E
+F046		Code	LF046
+F049		Code	LF049
+F055		Code	LF055
+F067		Code	LF067
+F068		Code	LF068
+F076		Code	LF076
+F08E		Code	LF08E
+F092		Code	LF092
+F099		Code	LF099
+F0B4		Code	LF0B4
+F0C8		Code	LF0C8
+F0CB		Code	LF0CB
+F0DD		Code	LF0DD
+F0EB		Code	LF0EB
+F0EF		Code	LF0EF
+F0FB		Code	LF0FB
+F103		Code	LF103
+F108		Code	LF108
+F124		Code	LF124
+F130		Code	LF130
+F143		Code	LF143
+F150		Code	LF150
+F158		Code	LF158
+F180		Code	LF180
+F183		Code	LF183
+F197		Code	LF197
+F19F		Code	LF19F
+F1AD		Code	LF1AD
+F1BE		Code	LF1BE
+F1CC		Code	LF1CC
+F1CE		Code	LF1CE
+F1CF		Code	LF1CF
+F1DE		Code	LF1DE
+
+Number of symbols:			36
+
+;--------------------------------------------------------------

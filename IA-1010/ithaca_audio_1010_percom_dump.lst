@@ -1,0 +1,505 @@
+				;
+				;	Disassembled by:
+				;		DASMx object code disassembler
+				;		(c) Copyright 1996-2003   Conquest Consultants
+				;		Version 1.40 (Oct 18 2003)
+				;
+				;	File:		ithaca_audio_1010_percom.bin
+				;
+				;	Size:		1024 bytes
+				;	Checksum:	3C24
+				;	CRC-32:		8C5CD272
+				;
+				;	Date:		Thu Sep 12 13:07:49 2019
+				;
+				;	CPU:		Zilog Z80 (Z80 family)
+				;
+				;
+				;
+					org	0C000H
+				;
+C000 : C3 03 C0		"   "		jp	LC003
+				;
+C003				LC003:
+C003 : DB 01		"  "		in	a,(001H)
+C005 : 31 FF 00		"1  "		ld	sp,000FFH
+C008 : CD 0E C0		"   "		call	LC00E
+C00B : C3 03 C0		"   "		jp	LC003
+				;
+C00E				LC00E:
+C00E : AF		" "		xor	a
+C00F : D3 00		"  "		out	(000H),a
+C011 : CD DE C1		"   "		call	LC1DE
+C014 : 3E 3F		">?"		ld	a,03FH
+C016 : CD CE C1		"   "		call	LC1CE
+C019 : CD 9F C1		"   "		call	LC19F
+C01C : F5		" "		push	af
+C01D : CD CC C1		"   "		call	LC1CC
+C020 : F1		" "		pop	af
+C021 : FE 44		" D"		cp	044H
+C023 : CA 92 C0		"   "		jp	z,LC092
+C026 : FE 4E		" N"		cp	04EH
+C028 : CA 8E C0		"   "		jp	z,LC08E
+C02B : FE 4C		" L"		cp	04CH
+C02D : CA 03 C1		"   "		jp	z,LC103
+C030 : FE 56		" V"		cp	056H
+C032 : CA 03 C1		"   "		jp	z,LC103
+C035 : FE 4D		" M"		cp	04DH
+C037 : CA 46 C0		" F "		jp	z,LC046
+C03A : FE 43		" C"		cp	043H
+C03C : CA 67 C0		" g "		jp	z,LC067
+C03F : FE 47		" G"		cp	047H
+C041 : C0		" "		ret	nz
+C042 : CD C8 C0		"   "		call	LC0C8
+C045 : E9		" "		jp	(hl)						;INFO: index jump
+				;
+C046				LC046:
+C046 : CD DD C0		"   "		call	LC0DD
+C049				LC049:
+C049 : CD EF C0		"   "		call	LC0EF
+C04C : AF		" "		xor	a
+C04D : B8		" "		cp	b
+C04E : C8		" "		ret	z
+C04F : CD 50 C1		" P "		call	LC150
+C052 : CD CC C1		"   "		call	LC1CC
+C055				LC055:
+C055 : CD CC C1		"   "		call	LC1CC
+C058 : 7E		"~"		ld	a,(hl)
+C059 : CD AD C1		"   "		call	LC1AD
+C05C : 23		"#"		inc	hl
+C05D : 05		" "		dec	b
+C05E : C2 55 C0		" U "		jp	nz,LC055
+C061 : CD DE C1		"   "		call	LC1DE
+C064 : C3 49 C0		" I "		jp	LC049
+				;
+C067				LC067:
+C067 : 2B		"+"		dec	hl
+C068				LC068:
+C068 : 06 10		"  "		ld	b,010H
+C06A : CD DE C1		"   "		call	LC1DE
+C06D : CD 50 C1		" P "		call	LC150
+C070 : CD CC C1		"   "		call	LC1CC
+C073 : CD CC C1		"   "		call	LC1CC
+C076				LC076:
+C076 : EB		" "		ex	de,hl
+C077 : CD C8 C0		"   "		call	LC0C8
+C07A : EB		" "		ex	de,hl
+C07B : FE 2F		" /"		cp	02FH
+C07D : CA 68 C0		" h "		jp	z,LC068
+C080 : 73		"s"		ld	(hl),e
+C081 : 23		"#"		inc	hl
+C082 : 54		"T"		ld	d,h
+C083 : 5D		"]"		ld	e,l
+C084 : FE 0D		"  "		cp	00DH
+C086 : C8		" "		ret	z
+C087 : 05		" "		dec	b
+C088 : C2 76 C0		" v "		jp	nz,LC076
+C08B : C3 68 C0		" h "		jp	LC068
+				;
+C08E				LC08E:
+C08E : 13		" "		inc	de
+C08F : C3 49 C0		" I "		jp	LC049
+				;
+C092				LC092:
+C092 : CD DD C0		"   "		call	LC0DD
+C095 : 3E 02		"> "		ld	a,002H
+C097 : D3 00		"  "		out	(000H),a
+C099				LC099:
+C099 : CD DE C1		"   "		call	LC1DE
+C09C : 0E 00		"  "		ld	c,000H
+C09E : 3E 3A		">:"		ld	a,03AH
+C0A0 : CD CE C1		"   "		call	LC1CE
+C0A3 : CD EF C0		"   "		call	LC0EF
+C0A6 : 78		"x"		ld	a,b
+C0A7 : CD AD C1		"   "		call	LC1AD
+C0AA : CA DE C1		"   "		jp	z,LC1DE
+C0AD : CD 50 C1		" P "		call	LC150
+C0B0 : AF		" "		xor	a
+C0B1 : CD AD C1		"   "		call	LC1AD
+C0B4				LC0B4:
+C0B4 : 7E		"~"		ld	a,(hl)
+C0B5 : CD AD C1		"   "		call	LC1AD
+C0B8 : 23		"#"		inc	hl
+C0B9 : 05		" "		dec	b
+C0BA : C2 B4 C0		"   "		jp	nz,LC0B4
+C0BD : AF		" "		xor	a
+C0BE : 91		" "		sub	c
+C0BF : CD AD C1		"   "		call	LC1AD
+C0C2 : C3 99 C0		"   "		jp	LC099
+				;
+C0C5 : FF FF FF		"   "		db	0FFH, 0FFH, 0FFH
+				;
+C0C8				LC0C8:
+C0C8 : 21 00 00		"!  "		ld	hl,00000H
+C0CB				LC0CB:
+C0CB : CD 9F C1		"   "		call	LC19F
+C0CE : FE 30		" 0"		cp	030H
+C0D0 : D8		" "		ret	c
+C0D1 : 29		")"		add	hl,hl
+C0D2 : 29		")"		add	hl,hl
+C0D3 : 29		")"		add	hl,hl
+C0D4 : 29		")"		add	hl,hl
+C0D5 : CD 97 C1		"   "		call	LC197
+C0D8 : 85		" "		add	a,l
+C0D9 : 6F		"o"		ld	l,a
+C0DA : C3 CB C0		"   "		jp	LC0CB
+				;
+C0DD				LC0DD:
+C0DD : CD C8 C0		"   "		call	LC0C8
+C0E0 : 5D		"]"		ld	e,l
+C0E1 : 54		"T"		ld	d,h
+C0E2 : FE 0D		"  "		cp	00DH
+C0E4 : CA EB C0		"   "		jp	z,LC0EB
+C0E7 : CD C8 C0		"   "		call	LC0C8
+C0EA : EB		" "		ex	de,hl
+C0EB				LC0EB:
+C0EB : 13		" "		inc	de
+C0EC : C3 DE C1		"   "		jp	LC1DE
+				;
+C0EF				LC0EF:
+C0EF : 7B		"{"		ld	a,e
+C0F0 : 95		" "		sub	l
+C0F1 : 47		"G"		ld	b,a
+C0F2 : 7A		"z"		ld	a,d
+C0F3 : 9C		" "		sbc	a,h
+C0F4 : 3E 10		"> "		ld	a,010H
+C0F6 : C2 FB C0		"   "		jp	nz,LC0FB
+C0F9 : B8		" "		cp	b
+C0FA : D0		" "		ret	nc
+C0FB				LC0FB:
+C0FB : 47		"G"		ld	b,a
+C0FC : C9		" "		ret
+				;
+C0FD : FF FF FF 31	"   1"		db	0FFH, 0FFH, 0FFH, 031H
+C101 : FF 00		"  "		db	0FFH, 000H
+				;
+C103				LC103:
+C103 : 57		"W"		ld	d,a
+C104 : 3E 01		"> "		ld	a,001H
+C106 : D3 00		"  "		out	(000H),a
+C108				LC108:
+C108 : CD 9F C1		"   "		call	LC19F
+C10B : FE 3A		" :"		cp	03AH
+C10D : C2 08 C1		"   "		jp	nz,LC108
+C110 : 0E 00		"  "		ld	c,000H
+C112 : CD 80 C1		"   "		call	LC180
+C115 : 47		"G"		ld	b,a
+C116 : CA 58 C1		" X "		jp	z,LC158
+C119 : CD 80 C1		"   "		call	LC180
+C11C : 67		"g"		ld	h,a
+C11D : CD 80 C1		"   "		call	LC180
+C120 : 6F		"o"		ld	l,a
+C121 : CD 80 C1		"   "		call	LC180
+C124				LC124:
+C124 : CD 80 C1		"   "		call	LC180
+C127 : 5F		"_"		ld	e,a
+C128 : 7A		"z"		ld	a,d
+C129 : FE 56		" V"		cp	056H
+C12B : 7B		"{"		ld	a,e
+C12C : CA 30 C1		" 0 "		jp	z,LC130
+C12F : 77		"w"		ld	(hl),a
+C130				LC130:
+C130 : BE		" "		cp	(hl)
+C131 : 1E 4D		" M"		ld	e,04DH
+C133 : C2 43 C1		" C "		jp	nz,LC143
+C136 : 23		"#"		inc	hl
+C137 : 05		" "		dec	b
+C138 : C2 24 C1		" $ "		jp	nz,LC124
+C13B : CD 80 C1		"   "		call	LC180
+C13E : 1E 58		" X"		ld	e,058H
+C140 : CA 08 C1		"   "		jp	z,LC108
+C143				LC143:
+C143 : AF		" "		xor	a
+C144 : D3 00		"  "		out	(000H),a
+C146 : CD DE C1		"   "		call	LC1DE
+C149 : 7B		"{"		ld	a,e
+C14A : CD CE C1		"   "		call	LC1CE
+C14D : CD CC C1		"   "		call	LC1CC
+C150				LC150:
+C150 : 7C		"|"		ld	a,h
+C151 : CD AD C1		"   "		call	LC1AD
+C154 : 7D		"}"		ld	a,l
+C155 : C3 AD C1		"   "		jp	LC1AD
+				;
+C158				LC158:
+C158 : 7A		"z"		ld	a,d
+C159 : FE 52		" R"		cp	052H
+C15B : C8		" "		ret	z
+C15C : CD 9F C1		"   "		call	LC19F
+C15F : FE 0D		"  "		cp	00DH
+C161 : C8		" "		ret	z
+C162 : CD 83 C1		"   "		call	LC183
+C165 : 67		"g"		ld	h,a
+C166 : CD 80 C1		"   "		call	LC180
+C169 : 6F		"o"		ld	l,a
+C16A : CD 80 C1		"   "		call	LC180
+C16D : 1E 58		" X"		ld	e,058H
+C16F : C2 43 C1		" C "		jp	nz,LC143
+C172 : AF		" "		xor	a
+C173 : D3 00		"  "		out	(000H),a
+C175 : F1		" "		pop	af
+C176 : E9		" "		jp	(hl)						;INFO: index jump
+				;
+C177 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C17B : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C17F : FF		" "		db	0FFH
+				;
+C180				LC180:
+C180 : CD 9F C1		"   "		call	LC19F
+C183				LC183:
+C183 : CD 97 C1		"   "		call	LC197
+C186 : 07		" "		rlca
+C187 : 17		" "		rla
+C188 : 17		" "		rla
+C189 : 17		" "		rla
+C18A : 5F		"_"		ld	e,a
+C18B : CD 9F C1		"   "		call	LC19F
+C18E : CD 97 C1		"   "		call	LC197
+C191 : 83		" "		add	a,e
+C192 : 5F		"_"		ld	e,a
+C193 : 81		" "		add	a,c
+C194 : 4F		"O"		ld	c,a
+C195 : 7B		"{"		ld	a,e
+C196 : C9		" "		ret
+				;
+C197				LC197:
+C197 : D6 30		" 0"		sub	030H
+C199 : FE 0A		"  "		cp	00AH
+C19B : D8		" "		ret	c
+C19C : D6 07		"  "		sub	007H
+C19E : C9		" "		ret
+				;
+C19F				LC19F:
+C19F : DB 00		"  "		in	a,(000H)
+C1A1 : E6 40		" @"		and	040H
+C1A3 : CA 9F C1		"   "		jp	z,LC19F
+C1A6 : DB 01		"  "		in	a,(001H)
+C1A8 : D3 01		"  "		out	(001H),a
+C1AA : E6 7F		"  "		and	07FH
+C1AC : C9		" "		ret
+				;
+C1AD				LC1AD:
+C1AD : F5		" "		push	af
+C1AE : 0F		" "		rrca
+C1AF : 0F		" "		rrca
+C1B0 : 0F		" "		rrca
+C1B1 : 0F		" "		rrca
+C1B2 : CD BE C1		"   "		call	LC1BE
+C1B5 : F1		" "		pop	af
+C1B6 : F5		" "		push	af
+C1B7 : CD BE C1		"   "		call	LC1BE
+C1BA : F1		" "		pop	af
+C1BB : 81		" "		add	a,c
+C1BC : 4F		"O"		ld	c,a
+C1BD : C9		" "		ret
+				;
+C1BE				LC1BE:
+C1BE : E6 0F		"  "		and	00FH
+C1C0 : C6 30		" 0"		add	a,030H
+C1C2 : FE 3A		" :"		cp	03AH
+C1C4 : DA CE C1		"   "		jp	c,LC1CE
+C1C7 : C6 07		"  "		add	a,007H
+C1C9 : C3 CE C1		"   "		jp	LC1CE
+				;
+C1CC				LC1CC:
+C1CC : 3E 20		"> "		ld	a,020H
+C1CE				LC1CE:
+C1CE : F5		" "		push	af
+C1CF				LC1CF:
+C1CF : DB 00		"  "		in	a,(000H)
+C1D1 : 07		" "		rlca
+C1D2 : D2 CF C1		"   "		jp	nc,LC1CF
+C1D5 : 07		" "		rlca
+C1D6 : 00		" "		nop
+C1D7 : DA 03 C0		"   "		jp	c,LC003
+C1DA : F1		" "		pop	af
+C1DB : D3 01		"  "		out	(001H),a
+C1DD : C9		" "		ret
+				;
+C1DE				LC1DE:
+C1DE : 3E 0D		"> "		ld	a,00DH
+C1E0 : CD CE C1		"   "		call	LC1CE
+C1E3 : 3E 0A		"> "		ld	a,00AH
+C1E5 : CD CE C1		"   "		call	LC1CE
+C1E8 : AF		" "		xor	a
+C1E9 : C3 CE C1		"   "		jp	LC1CE
+				;
+C1EC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C1F0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C1F4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C1F8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C1FC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C200 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C204 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C208 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C20C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C210 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C214 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C218 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C21C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C220 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C224 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C228 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C22C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C230 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C234 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C238 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C23C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C240 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C244 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C248 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C24C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C250 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C254 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C258 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C25C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C260 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C264 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C268 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C26C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C270 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C274 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C278 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C27C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C280 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C284 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C288 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C28C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C290 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C294 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C298 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C29C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2A0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2A4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2A8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2AC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2B0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2B4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2B8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2BC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2C0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2C4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2C8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2CC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2D0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2D4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2D8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2DC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2E0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2E4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2E8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2EC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2F0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2F4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2F8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C2FC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C300 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C304 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C308 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C30C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C310 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C314 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C318 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C31C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C320 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C324 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C328 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C32C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C330 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C334 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C338 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C33C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C340 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C344 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C348 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C34C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C350 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C354 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C358 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C35C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C360 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C364 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C368 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C36C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C370 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C374 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C378 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C37C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C380 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C384 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C388 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C38C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C390 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C394 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C398 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C39C : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3A0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3A4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3A8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3AC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3B0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3B4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3B8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3BC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3C0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3C4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3C8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3CC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3D0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3D4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3D8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3DC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3E0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3E4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3E8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3EC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3F0 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3F4 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3F8 : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+C3FC : FF FF FF FF	"    "		db	0FFH, 0FFH, 0FFH, 0FFH
+
+;--------------------------------------------------------------
+Symbol table
+============
+
+Value		Type	Name
+-----		----	----
+C003		Code	LC003
+C00E		Code	LC00E
+C046		Code	LC046
+C049		Code	LC049
+C055		Code	LC055
+C067		Code	LC067
+C068		Code	LC068
+C076		Code	LC076
+C08E		Code	LC08E
+C092		Code	LC092
+C099		Code	LC099
+C0B4		Code	LC0B4
+C0C8		Code	LC0C8
+C0CB		Code	LC0CB
+C0DD		Code	LC0DD
+C0EB		Code	LC0EB
+C0EF		Code	LC0EF
+C0FB		Code	LC0FB
+C103		Code	LC103
+C108		Code	LC108
+C124		Code	LC124
+C130		Code	LC130
+C143		Code	LC143
+C150		Code	LC150
+C158		Code	LC158
+C180		Code	LC180
+C183		Code	LC183
+C197		Code	LC197
+C19F		Code	LC19F
+C1AD		Code	LC1AD
+C1BE		Code	LC1BE
+C1CC		Code	LC1CC
+C1CE		Code	LC1CE
+C1CF		Code	LC1CF
+C1DE		Code	LC1DE
+
+Number of symbols:			35
+
+;--------------------------------------------------------------
