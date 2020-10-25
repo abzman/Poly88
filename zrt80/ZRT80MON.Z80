@@ -1,0 +1,2030 @@
+;
+;		DISASSEMBLY OF ZRT-80 MONITOR ROM
+;
+; 28/4/90	last revised
+;
+
+; Ascii equates
+
+tab	equ	9
+lf	equ	10
+cr	equ	13
+ctlq	equ	17		; xon character
+ctls	equ	19		; xoff character
+esc	equ	1bh
+del	equ	7fh
+
+; Memory equates
+
+rom	equ	0000h		; start of monitor rom
+romsize	equ	4096		; 4k byte
+
+ram	equ	4000h		; start of scratchpad ram
+ramsize	equ	1024		; 1k byte
+
+exrom	equ	1000h		; start of expansion rom
+screen	equ	0c000h		; start of screen ram
+
+; Port equates
+
+; 8250 UART registers
+
+rbr	equ	00h		; receive buffer register
+thr	equ	00h		; transmit holding register
+ier	equ	01h		; interrupt holding register
+iir	equ	02h		; interrupt ident register
+lcr	equ	03h		; line control register
+mcr	equ	04h		; modem control register
+lsr	equ	05h		; line status register
+msr	equ	06h		; modem status register
+
+dll	equ	00h		; divisor latch low
+dlm	equ	01h		; divisor latch high
+
+; 6845 CRTC registers
+
+crtcr	equ	08h		; control register
+crtdr	equ	09h		; data register
+
+; Keyboard port
+
+kbport	equ	10h		; keyboard port
+
+; Switches S2, S3
+
+s2	equ	18h		; bit 0-3  baud rate
+				; bit 4,5  00=odd  01=even
+				;	   10=mark 11=space	
+				; bit 6    0=xon/xoff 1=cts
+				; bit 7    0=autolf
+
+s3	equ	20h		; bit 0-2  screen configuration
+				; bit 3,4  00=adds 01=beehive
+				;	   10=adm3 11=h19
+				; bit 5    0=local 1=line
+				; bit 6    duplex  0=half 1=full
+				; bit 7    line wrap  0=on 1=off
+
+beep	equ	30h
+bell	equ	38h
+
+; Memory equates
+
+irqvec	equ	038h		; z80 mode 1 interrupt
+nmivec	equ	066h		; z80 non-maskable interrupt
+
+buffer	equ	ram		; buffer area for receive, transmit
+
+rxbuf	equ	buffer+272	; pointer to start of rx buffer
+rxpos	equ	rxbuf+2
+
+txbuf	equ	rxpos+2		; pointer to start of tx buffer
+txpos	equ	txbuf+2		; pointer to next char in tx buffer
+
+curofs	equ	txpos+2		; current cursor position
+l411a	equ	curofs+2
+scrsize	equ	l411a+2		; current screen size (bytes)
+vsync	equ	scrsize+2	; vert sync position for current
+cols	equ	vsync+1		; # screen columns
+rows	equ	cols+1		; # screen rows
+xpos	equ	rows+1		; current x position
+ypos	equ	xpos+1		; current y position
+xsave	equ	ypos+1		; last saved x position
+ysave	equ	xsave+1		; last saved y position
+@s2	equ	ysave+1		; switch 2 setting
+@s3	equ	@s2+1		; switch 3 setting
+
+stat1	equ	@s3+1
+
+; bit 0					bit 4 cursor 0=off 1=on
+; bit 1	cursor 0=no blink 1=blink	bit 5
+; bit 2					bit 6
+; bit 3					bit 7
+
+stat2	equ	stat1+1
+
+; bit 0	status line 0=off 1=on		bit 4
+; bit 1	cursor 0=underline 1=block	bit 5
+; bit 2					bit 6
+; bit 3					bit 7
+
+@mcr	equ	stat2+1		; uart mcr register contents
+kbstat	equ	@mcr+1		; 0ffh=byte from kbd waiting
+kbbyt	equ	kbstat+1	; byte read from keyboard
+
+stack	equ	ram+ramsize	; top of stack
+
+; Start of program
+
+	org	rom
+
+reboot:
+	jp	start
+
+	db	'Copyright 1983 Wm. White Digital Research Comp'
+
+	rept	irqvec-$	; skip until 0038h
+	db	0ffh
+	endm
+
+;
+; Interrupt - character received from serial port
+;
+
+	push	af
+	in	a,(iir)
+	and	00000110b
+	cp	00000100b 
+	jr	z,l008a		; received data byte
+	in	a,(msr)
+	bit	5,a		; dsr on?
+	jr	nz,l0074
+	call	rtsoff
+	jr	exint
+
+	rept	nmivec-$	; skip until 0066h
+	db	0ffh
+	endm
+
+;
+; NMI Interrupt - Strobe from keyboard
+;
+
+	push	af
+	in	a,(kbport)
+	ld	(kbbyt),a
+	ld	a,0ffh
+	ld	(kbstat),a
+	pop	af
+	retn
+
+;
+
+l0074:	in	a,(s2)
+	cpl
+	bit	6,a
+	jr	z,l0080		; xon/xoff
+	call	rtson		; cts
+	jr	exint
+
+l0080:	ld	a,(stat1)
+	bit	7,l
+	call	z,rtson
+	jr	exint
+
+;
+; Process data byte ready from uart 
+;
+
+l008a:	in	a,(s3)
+	cpl
+	bit	5,a		; local/line
+	in	a,(rbr)		; get character
+	res	7,a		; zero bit 7
+	call	z,put$rxbuf
+
+exint:	pop	af
+	ei
+	reti
+
+;
+
+tabl1:	db	'1',0d3h
+	db	'2',0d4h
+	db	'3',0d5h
+	db	'4',0d6h
+	db	'5',0d7h
+	db	'6',0d0h
+	db	'7',0d1h
+	db	'8',0d2h
+
+tabl2:	db	0,0
+
+tabl3:	db	'1',0f0h
+	db	'2',0f1h
+	db	'3',0f2h
+	db	'4',0f3h
+	db	'5',0f4h
+	db	'6',0f5h
+	db	'7',0f6h
+	db	'8',0f7h
+	db	'9',0f8h
+	db	'0',0f9h
+
+tabl4:	db	0,0
+
+
+start:	ld	sp,stack	; set stack pointer
+	di
+	im	1		; interrupt mode 1
+
+	ld	hl,rxbuf	; erase rx buffer
+	ld	b,28
+start1:	ld	(hl),0
+	inc	hl
+	djnz	start1
+
+	ld	hl,buffer
+	ld	(rxbuf),hl	; init rx buffer area
+	ld	(rxpos),hl	; reset pointer
+
+	ld	hl,buffer+256
+	ld	(txbuf),hl	; init tx buffer area
+	ld	(txpos),hl	; reset pointer
+
+	in	a,(s2)		; save s2 settings
+	cpl
+	ld	(@s2),a
+	in	a,(s3)		; save s3 setting
+	cpl
+	ld	(@s3),a
+
+	ld	a,00010010b	; default stat1 settings
+	ld	(stat1),a
+	ld	a,00000110b	; default stat2 settings
+	ld	(stat2),a
+
+	call	icrt		; init crtc screen
+	call	icurs		; init crtc cursor
+	call	irow		; init crtc rows
+	call	ibaud		; init baud rate from s2
+
+	ld	a,00001001b	; init interrupts - rx and modem status
+	out	(ier),a
+
+	ld	a,1		; set dtr on
+	ld	(@mcr),a
+	out	(mcr),a
+
+	rst	38h
+
+	ld	a,(exrom)	; test for jp instruction
+	cp	0c3h
+	call	z,exrom
+	ei
+	jp	l02c7
+
+;
+; Initialise baud rate from switch s2 setting
+;
+
+ibaud:	ld	a,(@s2)
+	and	00001111b	; get baud rate setting from s2
+	rlca
+	ld	e,a
+	ld	d,0
+	ld	hl,divis
+	add	hl,de
+	ld	a,10000011b	; set divisor latch bit
+	out	(lcr),a
+	ld	a,(hl)
+	out	(dll),a
+	inc	hl
+	ld	a,(hl)
+	out	(dlm),a
+	and	00000100b
+	or	00000011b
+	out	(lcr),a		; clear divisor latch bit
+	ret
+
+; Divisor table for the various baud rates
+
+divis:	dw	0008h		; 19200
+	dw	0010h		;  9600
+	dw	0015h		;  7200
+	dw	0020h		;  4800
+	dw	002bh		;  3600
+	dw	0040h		;  2400
+	dw	004dh		;  2000
+	dw	0055h		;  1800
+	dw	0080h		;  1200
+	dw	0100h		;   600
+	dw	0200h		;   300
+	dw	0400h		;   150
+	dw	0476h		;   134.5
+	dw	0574h		;   110
+	dw	0800h		;    75
+	dw	0c00h		;    50
+
+;
+; Set RTS on/off
+;
+
+rtson:	ld	a,(@mcr)
+	or	00000110b	; rts on, led on
+	jp	setrts
+
+rtsoff:	ld	a,(@mcr)
+	and	11111001b	; rts off, led off
+setrts:	ld	(@mcr),a
+	out	(mcr),a
+	ret
+
+;
+; Set crtc mode from switch s3 setting
+;
+
+icrt:	ld	a,(@s3)
+	and	00000111b
+	ld	hl,crtmde
+	rlca			; get offset into table
+	rlca
+	rlca
+	rlca
+	ld	e,a
+	ld	d,0
+	add	hl,de
+	ld	a,(hl)
+	ld	(cols),a	; # columns
+	inc	hl
+	ld	a,(hl)		; # rows
+	ld	(rows),a
+	inc	hl
+	ld	a,(hl)
+	ld	(vsync),a
+	inc	hl
+	ld	a,(hl)
+	ld	(scrsize),a
+	inc	hl
+	ld	a,(hl)
+	ld	(scrsize+1),a
+	inc	hl
+	ld	c,0
+	ld	b,10
+icrt1:	ld	a,c
+	out	(crtcr),a
+	ld	a,(hl)
+	out	(crtdr),a
+	inc	hl
+	inc	c
+	djnz	icrt1
+	call	cls
+	call	scurs
+	ret
+
+;
+;	crtc mode tables
+;
+
+crtmde	equ	$		; crtc mode tables
+
+; 80 * 24,  v=60, h=15750
+
+	db	80		; # columns
+	db	24		; # rows
+	db	25		; vsync
+	dw	80*24		; total screen characters
+	db	126		; R0  total hchars-1
+	db	80		; R1  hchars displayed
+	db	97		; R2  hsync position
+	db	01101000b	; R3  vsync,hsync width
+	db	25		; R4  tot vchars-1
+	db	3		; R5  vtot adj
+	db	24		; R6  vchars displayed
+	db	24		; R7  vsync position
+	db	01010000b	; R8  mode control
+	db	9		; R9  scan lines-1
+	db	0
+
+; 80 * 48,  v=60, h=15750
+
+	db	80
+	db	48
+	db	52
+	dw	80*48
+	db	126
+	db	80
+	db	61h
+	db	68h
+	db	39h
+	db	3
+	db	30h
+	db	52
+	db	53h
+	db	7
+	db	0
+
+; 80 * 24,  v=60, h=17540
+
+	db	80
+	db	24
+	db	25
+	dw	80*24
+	db	71h
+	db	50h
+	db	5ah
+	db	68h
+	db	19h
+	db	6
+	db	18h
+	db	24
+	db	50h
+	db	10
+	db	0
+
+; 80 * 48,  v=60, h=18700
+
+	db	80
+	db	48
+	db	52
+	dw	80*48
+	db	6ah
+	db	50h
+	db	55h
+	db	68h
+	db	37h
+	db	7
+	db	30h
+	db	52
+	db	53h
+	db	9
+	db	0
+
+; 96 * 24,  v=60, h=15750
+
+	db	96
+	db	24
+	db	25
+	dw	96*24
+	db	7eh
+	db	60h
+	db	67h
+	db	68h
+	db	19h
+	db	3
+	db	18h
+	db	24
+	db	50h
+	db	9
+	db	0
+
+; 80 * 24,  v=50, h=15750
+
+	db	80
+	db	24
+	db	26
+	dw	80*24
+	db	126		; R0  tot hchars-1
+	db	80		; R1  hchars displayed
+	db	97		; R2  hsync position
+	db	01101000b	; R3  vsync,hsync width
+	db	27		; R4  tot vchars-1
+	db	7		; R5  vtot adj
+	db	24		; R6  vchars displayed
+	db	26		; R7  vsync position
+	db	01010000b	; R8  mode control
+	db	10		; R9  scan lines-1
+	db	0
+
+; 80 * 48,  v=50, h=15750
+
+	db	80
+	db	48
+	db	51
+	dw	80*48
+	db	7eh
+	db	50h
+	db	61h
+	db	68h
+	db	38h
+	db	3
+	db	30h
+	db	51
+	db	53h
+	db	9
+	db	0
+
+; 96 * 24,  v=50, h=15750
+
+	db	96
+	db	24
+	db	26
+	dw	96*24
+	db	7eh
+	db	60h
+	db	67h
+	db	68h
+	db	1bh
+	db	7
+	db	18h
+	db	25
+	db	50h
+	db	10
+	db	0
+
+;
+;
+;
+
+irow:	ld	a,6		; # vert chars displayed
+	out	(crtcr),a
+	ld	a,(stat2)
+	bit	0,a
+	ld	a,(rows)
+	jr	z,irow1
+	inc	a
+irow1:	out	(crtdr),a
+	ret	z
+	ld	a,7		; vsync position
+	out	(crtcr),a
+	ld	a,(vsync)
+	out	(crtdr),a
+	ret
+
+; Initialise cursor type
+
+icurs:	ld	a,(stat1)
+	bit	4,a
+	ld	c,00100000b	; no cursor
+	jr	z,icurs1
+	bit	1,a
+	ld	c,00000000b	; blink off
+	jr	z,icurs1
+	ld	c,01100000b	; blink on
+icurs1:	ld	a,(stat2)
+	bit	1,a
+	ld	b,0
+	jr	nz,icurs2
+	ld	b,7
+icurs2:	ld	a,10
+	out	(crtcr),a
+	ld	a,b
+	or	c
+	out	(crtdr),a	; cursor start, blink
+	ld	a,11		; cursor end
+	out	(crtcr),a
+	ld	a,7
+	out	(crtdr),a
+	ret
+
+; Set Cursor Position
+
+scurs:	ld	a,15
+	out	(crtcr),a
+	ld	a,(curofs)	; cursor position low byte
+	out	(crtdr),a
+	ld	a,14
+	out	(crtcr),a
+	ld	a,(curofs+1)	; cursor position high byte
+	out	(crtdr),a
+	ret
+
+l028a:	ld	a,h
+	or	11000000b
+	ld	h,a
+	ld	a,(stat2)
+	bit	0,a
+	jr	z,l02b5
+	push	hl
+	ld	bc,(scrsize)
+	add	hl,bc
+	ld	a,h
+	or	11000000b
+	and	11011111b
+	ld	h,a
+	ex	de,hl
+	ld	hl,(l411a)
+	add	hl,bc
+	ld	a,h
+	or	11000000b
+	and	11011111b
+	ld	h,a
+	ld	bc,(cols)
+	ld	b,0
+	ldir
+	pop	hl
+l02b5:	ld	(l411a),hl
+	ld	a,13
+	out	(crtcr),a
+	ld	a,l
+	out	(crtdr),a
+	ld	a,12
+	out	(crtcr),a
+	ld	a,h
+	out	(crtdr),a
+	ret
+
+;
+
+l02c7:	ld	hl,$		; push current program counter to
+	push	hl		; stack for return
+	call	l051a
+	cp	del
+	ret	z
+	cp	' '
+	jr	c,l02db		; control character?
+	call	l07ad		; no
+	jp	l07d1
+
+l02db:	cp	tab
+	jp	z,htab		; do tab
+	cp	cr
+	jp	z,?retn		; do carriage return
+	cp	lf
+	jp	z,?lfeed	; do linefeed
+
+	ld	hl,l02fb
+	call	l0466		; determine emulation
+	jp	(hl)
+
+; Escape Mode
+
+do$esc:	call	l051a
+	ld	hl,l030b
+	call	l0466
+	jp	(hl)
+
+l02fb:	dw	h19$esc		; h19
+	db	3,3
+	dw	adm$ctl		; adm3a
+	db	3,9
+	dw	bee$esc		; beehive
+	db	3,3
+	dw	adds		; adds
+	db	3,9
+
+l030b:	dw	l0334		; h19
+	db	3,39
+	dw	l0334		; adm3a
+	db	3,39
+	dw	l03cd		; beehive
+	db	3,26
+	dw	l0436		; adds
+	db	3,19
+
+;
+
+l031b:	dw	tabl1		; h19
+	db	2,8
+	dw	tabl2		; adm3a
+	db	2,1
+	dw	tabl3		; beehive
+	db	2,10
+	dw	tabl4		; adds
+	db	2,1
+
+h19$esc:db	esc
+	dw	do$esc
+	db	7
+	dw	do$bell
+	db	8
+	dw	do$bs
+
+l0334:	db	'='
+	dw	curad
+	db	'Y'
+	dw	curad
+	db	'H'
+	dw	home
+	db	'C'
+	dw	right
+	db	'D'
+	dw	do$bs
+	db	'B'
+	dw	down
+	db	'A'
+	dw	up
+	db	'I'
+	dw	revlf
+	db	'n'
+	dw	rd$cur
+	db	'j'
+	dw	sa$cur
+	db	'k'
+	dw	re$cur
+	db	'E'
+	dw	cls
+	db	'b'
+	dw	e$top
+	db	'J'
+	dw	do$eol
+	db	'l'
+	dw	e$ln
+	db	'o'
+	dw	e$left
+	db	'K'
+	dw	e$right
+	db	'L'
+	dw	ins$ln
+	db	'M'
+	dw	del$ln
+	db	'N'
+	dw	del$chr
+	db	'@'
+	dw	ins$on
+	db	'O'
+	dw	ins$off
+	db	'p'
+	dw	revvid
+	db	'q'
+	dw	norvid
+	db	'F'
+	dw	gr$on
+	db	'G'
+	dw	gr$off
+	db	'r'
+	dw	setbd
+	db	'x'
+	dw	setmod
+	db	'y'
+	dw	rstmod
+	db	'{'
+	dw	en$kb
+	db	'}'
+	dw	dis$kb
+	db	'v'
+	dw	wrap$off
+	db	'w'
+	dw	wrap$on
+	db	'z'
+	dw	reboot
+	db	esc
+	dw	do$esc
+	db	't'
+	dw	test
+	db	's'
+	dw	l095a
+	db	'f'
+	dw	alt$char
+	db	'g'
+	dw	nor$char
+
+adm$ctl:db	8
+	dw	do$bs
+	db	7
+	dw	do$bell
+	db	0bh		; ctl-k
+	dw	up
+	db	12		; ctl-l
+	dw	right
+	db	14		; ctl-n
+	dw	en$kb
+	db	11h		; ctl-q
+	dw	dis$kb
+	db	26		; ctl-z
+	dw	cls
+	db	esc		; ctl-[
+	dw	do$esc
+	db	30		; ctl-^
+	dw	home
+
+bee$esc:db	7
+	dw	do$bell
+	db	8
+	dw	do$bs
+	db	esc
+	dw	do$esc
+
+l03cd:	db	'7'
+	dw	setbd
+	db	'Q'
+	dw	ins$on
+	db	'@'
+	dw	ins$off
+	db	'A'
+	dw	up
+	db	'B'
+	dw	down
+	db	'C'
+	dw	right
+	db	'D'
+	dw	do$bs
+	db	'E'
+	dw	cls
+	db	'F'
+	dw	curad
+	db	'G'
+	dw	l094a
+	db	'H'
+	dw	home
+	db	'J'
+	dw	do$eol
+	db	'K'
+	dw	e$right
+	db	'L'
+	dw	ins$ln
+	db	'M'
+	dw	del$ln
+	db	'P'
+	dw	del$chr
+	db	'R'
+	dw	gr$on
+	db	'S'
+	dw	gr$off
+	db	'V'
+	dw	reboot
+	db	'Y'
+	dw	curad
+	db	'Z'
+	dw	curs$tog
+	db	'\'
+	dw	rd$cur
+	db	'b'
+	dw	en$kb
+	db	'c'
+	dw	dis$kb
+	db	'l'
+	dw	revvid
+	db	'm'
+	dw	norvid
+
+adds:	db	8
+	dw	do$bs
+	db	esc
+	dw	do$esc
+	db	7
+	dw	do$bell
+	db	1
+	dw	home
+	db	2
+	dw	en$kb
+	db	6
+	dw	right
+	db	12
+	dw	cls
+	db	21
+	dw	do$bs
+	db	25
+	dw	dis$kb
+
+l0436:	db	'E'
+	dw	del$chr
+	db	'F'
+	dw	ins$chr
+	db	'l'
+	dw	del$ln
+	db	'M'
+	dw	ins$ln
+	db	'Y'
+	dw	curad
+	db	'k'
+	dw	do$eol
+	db	'K'
+	dw	e$right
+	db	'Z'
+	dw	cur$tog
+	db	's'
+	dw	reboot
+	db	'A'
+	dw	ibaud
+
+;
+
+l0454:	ld	c,a
+l0455:	cp	(hl)
+	jr	z,l0463
+	ld	b,e
+	ld	a,c
+l045a:	inc	hl
+	djnz	l045a
+	dec	d
+	jr	nz,l0455
+	ld	a,c
+	scf
+	ret
+
+l0463:	inc	hl
+	ld	a,(hl)
+	ret
+
+;	entry - hl
+;
+
+l0466:	push	af
+	in	a,(s3)		; terminal emulation
+	cpl
+	rrca
+	and	00001100b	; terminal emulation
+	ld	e,a		; 0, 4, 8, 12
+	ld	d,0
+	add	hl,de
+	ld	e,(hl)		; de=
+	inc	hl
+	ld	d,(hl)
+	inc	hl
+	ld	c,(hl)		; bc=
+	inc	hl
+	ld	b,(hl)
+	ex	de,hl
+	ld	d,b
+	ld	e,c
+	pop	af		; hl<-de, de<-bc
+	call	l0454
+	jp	c,l0486
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	ret
+
+l0486:	ld	hl,l0489
+l0489:	ret
+
+;--------------------------------------
+;
+;
+
+l048a:	ld	hl,kbstat	; byte from keyboard waiting?
+	bit	0,(hl)
+	ret	z		; no
+
+	ld	a,(stat1)
+	bit	3,a
+	ret	nz
+
+	ld	(hl),0
+	inc	hl
+	ld	b,(hl)
+	ld	a,b
+	res	7,b
+	push	bc
+	ld	hl,l031b
+	call	l0466
+	pop	bc
+	jr	c,l04a8
+	ld	b,a
+l04a8:	in	a,(msr)
+	bit	6,a		; caps on?
+	jr	z,l04ba
+
+	ld	a,b		; convert to uppercase
+	cp	'a'
+	jr	c,l04ba
+	cp	'z'+1
+	jr	nc,l04ba
+	sub	32
+	ld	b,a
+l04ba:	ld	a,b
+	cp	' '
+	jr	c,l04cf
+	cp	del
+	jr	nc,l04cf
+	ld	a,(cols)
+	sub	8
+	ld	hl,xpos
+	cp	(hl)
+	call	z,do$beep
+l04cf:	bit	7,b
+	ld	a,esc
+	call	nz,l04d9
+	ld	a,b
+	res	7,a
+
+;
+
+l04d9:	push	af
+	in	a,(s3)
+	cpl
+	and	01100000b
+	jr	z,l04e6
+	pop	af		; line or full-duplex
+	push	af
+	call	put$rxbuf
+l04e6:	in	a,(s3)
+	cpl
+	and	00100000b
+	jr	nz,l04f2
+	pop	af
+	call	put$txbuf		; local or half-duplex
+	ret
+
+l04f2:	pop	af
+	ret
+
+; Place char (a) in rx buffer
+
+put$rxbuf:
+	push	af
+	push	hl
+	ld	hl,(rxbuf)
+	ld	(hl),a		; place character
+	inc	l		; increment buffer pointer
+	ld	(rxbuf),hl
+	ld	a,(stat1)
+	bit	5,a
+	jr	nz,l0517
+	ld	a,(rxpos)
+	sub	l
+	neg
+	cp	11000000b
+	jr	nz,l0517
+	call	dis$rx
+	ld	hl,stat1
+	set	5,(hl)
+l0517:	pop	hl
+	pop	af
+	ret
+
+;--------------------------------------
+;
+;
+l051a:	push	bc
+	push	de
+	push	hl
+l051d:	call	l048a
+	call	?tx		; transmit a character
+	ld	hl,(rxpos)
+	ld	a,(rxbuf)
+	cp	l
+	jr	z,l054a
+	ld	b,(hl)
+	inc	l
+	ld	(rxpos),hl
+	ld	a,(stat1)
+	bit	5,a
+	jr	z,l054f
+	ld	a,(rxbuf)
+	sub	l
+	cp	'@'
+	jr	nz,l054f
+	call	en$rx
+	ld	hl,stat1
+	res	5,(hl)
+	jr	l054f
+
+l054a:	call	scurs
+	jr	l051d
+
+l054f:	ld	a,b
+	pop	hl
+	pop	de
+	pop	bc
+	ret
+
+; Disable rx
+
+dis$rx:	in	a,(s2)
+	cpl
+	bit	6,a
+	jr	z,l0565
+	ld	a,ctls		; send xoff
+	call	put$txbuf
+	ld	a,(@mcr)
+	jr	l056a
+
+l0565:	ld	a,(@mcr)
+	res	1,a		; rts off
+l056a:	res	2,a		; led off
+	ld	(@mcr),a
+	out	(mcr),a
+	ret
+
+; Enable rx
+
+en$rx:	in	a,(s2)
+	cpl
+	bit	6,a
+	jr	z,l0583
+	ld	a,ctlq		; send xon
+	call	put$txbuf
+	ld	a,(@mcr)
+	jr	l0588
+
+l0583:	ld	a,(@mcr)
+	set	1,a		; rts on
+l0588:	set	2,a		; led on
+	ld	(@mcr),a
+	out	(mcr),a
+	ret
+
+; Put character in transmit buffer
+
+put$txbuf:
+	push	hl
+	ld	hl,(txbuf)
+	ld	(hl),a
+	inc	l
+	res	4,l		; 16 character circular buffer
+	ld	(txbuf),hl
+	pop	hl
+	ret
+
+; Get next character from transmit buffer
+
+get$txbuf:
+	ld	hl,(txpos)
+	ld	a,(hl)
+	inc	l
+	res	4,l
+	ld	(txpos),hl
+	ret
+
+; Transmit buffer empty?
+
+?txbuf:	ld	hl,(txpos)
+	ld	a,(txbuf)
+	cp	l
+	ret
+
+; Transmit character if ready
+
+?tx:	call	?txbuf		; any chars to transmit?
+	ret	z
+	in	a,(msr)		; cts on?
+	bit	4,a
+	ret	z
+	in	a,(lsr)		; tx hold empty?
+	bit	5,a
+	ret	z
+	call	get$txbuf	; get next char to transmit
+	res	7,a
+	ld	b,a
+	in	a,(s2)
+	rlca
+	rlca
+	rlca
+	jr	c,?tx1
+	and	10000000b
+	or	b
+	jr	?tx3
+
+?tx1:	and	10000000b
+	ld	c,a
+	ld	a,b
+	and	a
+	jp	pe,?tx2
+	xor	10000000b
+?tx2:	xor	c
+?tx3:	out	(thr),a
+	ret
+
+l05de:	ld	hl,(l411a)
+	ld	de,(scrsize)
+	add	hl,de
+	ld	a,(cols)
+	ld	b,a
+l05ea:	ld	(hl),' '
+	inc	hl
+	djnz	l05ea
+	ret
+
+; Cursor positioned at last row on screen?
+
+?row$end:
+	ld	a,(rows)
+	ld	hl,ypos
+	cp	(hl)
+	ret
+
+;
+
+l05f8:	ld	a,d
+	and	00011111b
+	ld	d,a
+	ld	a,h
+	or	11000000b
+	and	11011111b
+	ld	h,a
+	ld	a,(stat1)
+	and	10000000b
+	add	a,' '
+	ld	b,a
+	ld	a,d
+	or	e
+	ret	z
+	inc	d
+l060e:	ld	(hl),b
+	inc	hl
+	dec	e
+	jp	nz,l060e
+	dec	d
+	jp	nz,l060e
+	ret
+
+; Clear screen
+
+cls:	call	?row$end
+	jp	z,e$ln
+	ld	hl,screen
+	call	l028a
+	call	home
+	ld	hl,(l411a)
+	ld	de,(scrsize)
+	jp	l05f8
+
+; Erase line
+
+e$ln:	ld	hl,(curofs)
+	ld	de,(xpos)
+	and	a
+	ld	d,0
+	sbc	hl,de
+	ld	a,h
+	or	11000000b
+	and	11011111b
+	ld	h,a
+	ld	de,(cols)
+	ld	d,0
+	jp	l05f8
+
+; Erase to top
+
+e$top:	call	?row$end
+	ret	z
+	ld	hl,(curofs)
+	ld	de,(l411a)
+	and	a
+	sbc	hl,de
+	inc	hl
+	ex	de,hl
+	ld	hl,(l411a)
+	jp	l05f8
+
+; Erase to end-of-line
+
+do$eol:	call	?row$end
+	ret	z
+	ld	hl,(scrsize)
+	ld	de,(l411a)
+	add	hl,de
+	ld	de,(curofs)
+	and	a
+	sbc	hl,de
+	ex	de,hl
+	ld	hl,(curofs)
+	jp	l05f8
+
+; Erase left
+
+e$left:	ld	hl,(curofs)
+	ld	de,(xpos)
+	and	a
+	ld	d,0
+	sbc	hl,de
+	ld	a,h
+	or	11000000b
+	and	11011111b
+	ld	h,a
+	ld	de,(xpos)
+	ld	d,0
+	inc	e
+	jp	l05f8
+
+; Erase right
+
+e$right:ld	hl,xpos
+	ld	a,(cols)
+	sub	(hl)
+	ld	e,a
+	ld	d,0
+	ld	hl,(curofs)
+	jp	l05f8
+
+;
+
+l06a9:	ld	hl,xpos
+	ld	a,(cols)
+	sub	(hl)
+	dec	a
+	ret	z
+	ld	c,a
+	ld	b,0
+	ld	hl,(curofs)
+	ld	de,(cols)
+	ld	d,0
+	add	hl,de
+	ld	de,(xpos)
+	and	a
+	ld	d,0
+	sbc	hl,de
+	dec	hl
+	ld	a,h
+	or	11100000b
+	ld	h,a
+	ld	d,h
+	ld	e,l
+	dec	hl
+	ld	a,h
+	or	11100000b
+	ld	h,a
+	lddr
+	ret
+
+; Insert character
+
+ins$chr:call	l06a9
+	ld	a,' '
+	jp	l07ad
+
+; Insert line
+
+ins$ln:	call	?row$end
+	ret	z
+	call	lfeed
+	ld	hl,(scrsize)
+	ld	de,(l411a)
+	add	hl,de
+	ld	de,(cols)
+	and	a
+	ld	d,0
+	sbc	hl,de
+	ld	de,(curofs)
+	and	a
+	sbc	hl,de
+	inc	hl
+	ld	a,h
+	and	00011111b
+	ld	b,a
+	ld	c,l
+	or	c
+	jr	z,l0725
+	ld	hl,(scrsize)
+	ld	de,(l411a)
+	add	hl,de
+	dec	hl
+	ld	a,h
+	or	11100000b
+	ld	h,a
+	push	hl
+	ld	de,(cols)
+	and	a
+	ld	d,0
+	sbc	hl,de
+	ld	a,h
+	or	11100000b
+	ld	h,a
+	pop	de
+	lddr
+l0725:	jp	e$ln
+
+; Delete line
+
+del$ln:	call	?row$end
+	ret	z
+	call	lfeed
+	ld	hl,(scrsize)
+	ld	de,(l411a)
+	add	hl,de
+	ld	de,(cols)
+	and	a
+	ld	d,0
+	sbc	hl,de
+	ld	de,(curofs)
+	and	a
+	sbc	hl,de
+	ld	a,h
+	and	00011111b
+	ld	b,a
+	ld	c,l
+	or	c
+	jr	z,l0769
+	ld	hl,(curofs)
+	ld	a,h
+	or	11000000b
+	and	11011111b
+	ld	h,a
+	push	hl
+	ld	de,(cols)
+	ld	d,0
+	add	hl,de
+	ld	a,h
+	or	11000000b
+	and	11011111b
+	ld	h,a
+	pop	de
+	ldir
+l0769:	ld	hl,(l411a)
+	ld	de,(scrsize)
+	add	hl,de
+	ld	de,(cols)
+	and	a
+	ld	d,0
+	sbc	hl,de
+	ld	a,h
+	or	11000000b
+	and	11011111b
+	ld	h,a
+	ld	de,(cols)
+	ld	d,0
+	jp	l05f8
+
+; Delete character
+
+del$chr:ld	hl,xpos
+	ld	a,(cols)
+	sub	(hl)
+	dec	a
+	ld	c,a
+	ld	b,0
+	ld	hl,(curofs)
+	ld	a,h
+	or	11000000b
+	and	11011111b
+	ld	h,a
+	ld	d,h
+	ld	e,l
+	inc	hl
+	ld	a,c
+	and	a
+	jr	z,l07a6
+	ldir
+l07a6:	ex	de,hl
+	ld	a,' '
+	call	l07b0
+	ret
+
+l07ad:	ld	hl,(curofs)
+l07b0:	push	hl
+	ld	hl,stat1
+	bit	2,(hl)
+	jr	z,l07bf
+	cp	'a'-1
+	jp	c,l07bf
+	sub	'a'-1
+l07bf:	bit	7,(hl)
+	jr	z,l07c5
+	or	10000000b
+l07c5:	bit	6,(hl)
+	jr	z,l07ce
+	push	af
+	call	l06a9
+	pop	af
+l07ce:	pop	hl
+	ld	(hl),a
+	ret
+
+l07d1:	ld	hl,xpos
+	ld	a,(cols)
+	dec	a
+	cp	(hl)
+	jr	z,l07e8
+	inc	(hl)
+	ld	hl,(curofs)
+	inc	hl
+	ld	a,h
+	or	11000000b
+	ld	h,a
+	ld	(curofs),hl
+	ret
+
+l07e8:	ld	a,(@s3)
+	bit	7,a
+	ret	z
+	jp	l0880
+
+; Line-feed
+
+?lfeed:	call	retn
+	ld	a,(stat1)
+	bit	0,a
+	ret	z
+
+lfeed:	ld	hl,(curofs)
+	ld	de,(xpos)
+	and	a
+	ld	d,0
+	sbc	hl,de
+	ld	a,h
+	or	11000000b
+	ld	h,a
+	ld	(curofs),hl
+	xor	a
+	ld	(xpos),a
+	ret
+
+;
+; carriage return
+;
+
+?retn:	call	lfeed
+	ld	a,(@s2)
+	bit	7,a
+	ret	z
+
+retn:	call	?row$end
+	ret	z
+	ld	hl,(curofs)
+	ld	de,(cols)
+	ld	d,0
+	add	hl,de
+	ld	a,h
+	or	11000000b
+	ld	h,a
+	ld	(curofs),hl
+	ld	hl,ypos
+	ld	a,(rows)
+	cp	(hl)
+	ret	z
+	dec	a
+	cp	(hl)
+	jr	z,l083e
+	inc	(hl)
+	ret
+
+l083e:	ld	hl,(l411a)
+	ld	de,(cols)
+	ld	d,0
+	add	hl,de
+	call	l028a
+	jp	e$ln
+
+; Reverse linefeed
+
+revlf:	call	?row$end
+	ret	z
+	ld	hl,(curofs)
+	ld	de,(cols)
+	and	a
+	ld	d,0
+	sbc	hl,de
+	ld	a,h
+	or	11000000b
+	ld	h,a
+	ld	(curofs),hl
+	ld	hl,ypos
+	xor	a
+	cp	(hl)
+	jr	z,l086e
+	dec	(hl)
+	ret
+
+l086e:	ld	hl,(l411a)
+	ld	de,(cols)
+	and	a
+	ld	d,0
+	sbc	hl,de
+	call	l028a
+	jp	e$ln
+
+l0880:	call	lfeed
+	jp	retn
+
+; Backspace
+
+do$bs:	ld	hl,xpos
+	xor	a
+	cp	(hl)
+	ret	z
+	dec	(hl)
+	ld	hl,(curofs)
+	dec	hl
+	ld	a,h
+	or	11000000b
+	ld	h,a
+	ld	(curofs),hl
+	ret
+
+; Cursor Right
+
+right:	ld	hl,xpos
+	ld	a,(cols)
+	dec	a
+	cp	(hl)
+	ret	z
+	jp	l07d1
+
+; Up Cursor
+
+up:	ld	a,(ypos)
+	and	a
+	ret	z
+	jp	revlf
+
+; Down Cursor
+
+down:	ld	hl,ypos
+	ld	a,(rows)
+	dec	a
+	cp	(hl)
+	ret	z
+	jp	retn
+
+; Htab
+
+htab:	ld	bc,(xpos)
+	push	bc
+	call	l07d1
+	pop	bc
+	ld	a,(xpos)
+	cp	c
+	ret	z
+	and	00000111b
+	jr	nz,htab
+	ret
+
+; Home Cursor
+
+home:	ld	hl,(l411a)
+	ld	(curofs),hl
+	xor	a
+	ld	(ypos),a
+	ld	(xpos),a
+	ret
+
+; Save cursor position
+
+sa$cur:	ld	a,(xpos)
+	ld	(xsave),a
+	ld	a,(ypos)
+	ld	(ysave),a
+	ret
+
+; Recall cursor position
+
+re$cur:	ld	bc,(xsave)
+	jp	l08fc
+
+; Cursor Addressing
+
+curad:	call	l051a
+	sub	' '
+	push	af
+	call	l051a
+	sub	' '
+	ld	c,a
+	pop	af
+	ld	b,a
+l08fc:	ld	a,(cols)
+	cp	c
+	jr	nc,l0904
+	dec	a
+l0903:	ld	c,a
+l0904:	ld	a,(rows)
+	cp	b
+	jr	nc,l090b
+	ld	b,a
+l090b:	ld	a,c
+	ld	(xpos),a
+	ld	a,b
+	ld	(ypos),a
+	ld	h,0
+	ld	l,c
+	ld	de,(l411a)
+	add	hl,de
+	and	a
+	jr	z,l0927
+	ld	de,(cols)
+	ld	d,0
+l0924:	add	hl,de
+	djnz	l0924
+l0927:	ld	a,h
+	or	11000000b
+	ld	h,a
+	ld	(curofs),hl
+	ret
+
+; Read cursor address
+
+rd$cur:	ld	a,esc
+	call	l04d9
+	ld	a,'Y'
+	call	l04d9
+	ld	a,(ypos)
+	add	a,' '
+	call	l04d9
+	ld	a,(xpos)
+	add	a,' '
+	call	l04d9
+	ret
+
+l094a:	ld	hl,(curofs)
+	ld	a,(hl)
+	jp	l04d9
+
+; Toggle cursor on/off
+
+cur$tog:call	l051a
+	call	l07ad
+	jp	l07d1
+
+l095a:	call	l051a
+	sub	'A'
+	ret	c
+	and	00000111b
+	ld	b,a
+	ld	hl,@s3
+	ld	a,(hl)
+	and	11111000b
+	or	b
+	ld	(hl),a
+	call	statof
+	jp	icrt
+
+; Set Baud Rate
+
+setbd:	call	l051a
+	sub	'@'
+	ret	c
+	and	00001111b
+	ld	b,a
+	ld	hl,@s2
+	ld	a,(hl)
+	and	11110000b
+	or	b
+	ld	(hl),a
+	call	ibaud
+	ret
+
+;
+; Set Mode	Esc x (0-9)
+;
+
+setmod:	call	l051a
+	ld	hl,x09tbl
+	ld	d,7
+	jp	dsptch
+
+;
+; Reset Mode	Esc y (0-9)
+;
+
+rstmod:	call	l051a
+	ld	hl,y09tbl
+	ld	d,7
+	jp	dsptch
+
+; Test Mode	Esc + (1-4)
+
+test:	call	l051a
+	ld	hl,t14tbl
+	ld	d,4
+	jp	dsptch
+
+;
+;	Esc + (1-4)		dispatch table
+;
+
+t14tbl:	db	'1'		; print all (incl ESC and CTRL chars)
+	dw	test1
+	db	'2'		; fill screen with pattern
+	dw	test2
+	db	'3'		; fill screen with same character
+	dw	test3
+	db	'4'		; allow crtc registers to be changed
+	dw	test4
+
+; jumps to selected routine from table
+; entry	- (hl) points to dispatch table, (d) = number of options
+
+dsptch:	ld	e,3
+	call	l0454
+	ret	c
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	jp	(hl)
+
+;
+;	Esc x (0-9)		dispatch table
+;
+
+x09tbl:	db	'0'		; blinking cursor
+	dw	blnkon
+	db	'1'		; status line on
+	dw	staton
+	db	'2'		; end of line beep off
+	dw	lbpoff
+	db	'4'		; block cursor
+	dw	blkcur
+	db	'5'		; cursor off
+	dw	curoff
+	db	'8'		; auto linefeed
+	dw	autolf$on
+	db	'9'		; auto carriage return
+	dw	autocr$on
+
+;
+;	Esc y (0-9)		dispatch table
+;
+
+y09tbl:	db	'0'		; no blink cursor
+	dw	blnkof
+	db	'1'		; status line off
+	dw	statof
+	db	'2'		; end of line beep on
+	dw	lbpon
+	db	'4'		; underline cursor
+	dw	ulncur
+	db	'5'		; cursor on
+	dw	curson
+	db	'8'		; auto linefeed off
+	dw	autolf$off
+	db	'9'		; auto carriage return off
+	dw	autocr$off
+
+ins$on:	ld	hl,stat1	; insert character mode on
+	set	6,(hl)
+	ret
+
+ins$off:ld	hl,stat1	; insert character mode off
+	res	6,(hl)
+	ret
+
+revvid:	ld	hl,stat1
+	set	7,(hl)
+	ret
+
+norvid:	ld	hl,stat1	; normal video
+	res	7,(hl)
+	ret
+
+gr$on:	ld	hl,stat1	; enter graphics mode
+	set	2,(hl)
+	ret
+
+gr$off:	ld	hl,stat1	; exit graphics mode
+	res	2,(hl)
+	ret
+
+dis$kb:	ld	hl,stat1
+	set	3,(hl)
+	ret
+
+en$kb:	ld	hl,stat1
+	res	3,(hl)
+	ret
+
+wrap$off:
+	ld	hl,@s3		; wraparound off
+	set	7,(hl)
+	ret
+
+wrap$on:ld	hl,@s3		; wraparound on
+	res	7,(hl)
+	ret
+
+autolf$on:
+	ld	hl,@s2		; auto linefeed on
+	set	7,(hl)
+	ret
+
+autolf$off:
+	ld	hl,@s2		; auto linefeed off
+	res	7,(hl)
+	ret
+
+autocr$on:
+	ld	hl,stat1	; auto carriage return on
+	set	0,(hl)
+	ret
+
+autocr$off:
+	ld	hl,stat1	; auto carriage return off
+	res	0,(hl)
+	ret
+
+lbpon:	ld	hl,stat2	; end of line beep on
+	set	2,(hl)
+	ret
+
+lbpoff:	ld	hl,stat2	; end of line beep off
+	res	2,(hl)
+	ret
+
+alt$char:
+	ld	hl,@mcr		; alternate character set
+	set	3,(hl)
+	ld	a,(@mcr)
+	out	(mcr),a
+	ret
+
+nor$char:
+	ld	hl,@mcr		; normal character set
+	res	3,(hl)
+	ld	a,(@mcr)
+	out	(mcr),a
+	ret
+
+blnkon:	ld	hl,stat1	; blink
+	set	1,(hl)
+	jp	icurs
+
+blnkof:	ld	hl,stat1	; no blink
+	res	1,(hl)
+	jp	icurs
+
+blkcur:	ld	hl,stat2	; block cursor
+	set	1,(hl)
+	jp	icurs
+
+ulncur:	ld	hl,stat2	; underline cursor
+	res	1,(hl)
+	jp	icurs
+
+curson:	ld	hl,stat1	; cursor on
+	set	4,(hl)
+	jp	icurs
+
+curoff:	ld	hl,stat1	; cursor off
+	res	4,(hl)
+	jp	icurs
+
+curs$tog:
+	ld	hl,stat1	; toggle cursor on/off
+	ld	a,00010000b
+	xor	(hl)
+	ld	(hl),a
+	jp	icurs
+
+staton:	call	l05de
+	ld	hl,stat2	; status line on
+	set	0,(hl)
+	jp	irow
+
+statof:	ld	hl,stat2	; status line off
+	res	0,(hl)
+	jp	irow
+
+; print every character received including ctrl, esc codes
+
+test1:	call	wrap$off
+l0aad:	call	l051a
+	call	l07ad
+	call	l07d1
+	jr	l0aad
+
+; fill screen with a pattern
+
+test2:	ld	hl,screen
+	ld	bc,8192
+test21:	ld	(hl),l
+	dec	bc
+	inc	hl
+	ld	a,b
+	or	c
+	jr	nz,test21
+	ret
+
+; fill screen with character
+
+test3:	call	l051a
+	ld	e,a		; fill screen with (e)
+	ld	hl,screen
+	ld	bc,8192
+test31:	ld	(hl),e
+	inc	hl
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,test31
+	ret
+
+; change crtc registers
+
+test4:	call	l0b0c
+	push	af
+	call	l0b0c
+	ld	b,a
+	pop	af
+	cp	17
+	jr	z,l0af4
+	jr	nc,l0aed
+	out	(crtcr),a
+	ld	a,b
+	out	(crtdr),a
+	ret
+
+;
+
+l0aed:	ld	a,b
+	ld	(cols),a
+	jp	l0af8
+
+l0af4:	ld	a,b
+	ld	(rows),a
+
+l0af8:	ld	a,(cols)
+	ld	b,a
+	ld	de,(rows)
+	ld	d,0
+	ld	hl,0
+l0b05:	add	hl,de
+	djnz	l0b05
+	ld	(scrsize),hl
+	ret
+
+;
+
+l0b0c:	call	l0b1d
+	rlca
+	rlca
+	rlca
+	rlca
+	and	11110000b
+	ld	c,a
+	push	bc
+	call	l0b1d
+	pop	bc
+	or	c
+	ret
+
+l0b1d:	call	l051a
+	and	00001111b
+	ret
+
+do$bell:ld	a,(stat2)
+	bit	2,a
+	ret	z
+	out	(bell),a
+	ret
+
+do$beep:ld	a,(stat2)
+	bit	2,a
+	ret	z
+	out	(beep),a
+	ret
+
+	rept	romsize-$
+	db	0ffh		; fill remainder with 0ffh
+	endm
+
+	end

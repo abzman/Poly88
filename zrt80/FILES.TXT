@@ -1,0 +1,7 @@
+Digital Research Computers ZRT80 Video Terminal
+-----------------------------------------------
+ZRT80    GIF	ZRT80 schematic
+ZRT80MAN.PDF	ZRT80 manual (Adobe Acrobat format)
+ZRT80MON.Z80	Monitor rom disassembly
+ZRT80MON.BIN	Monitor rom binary image
+ZRT80CHR.BIN	Character generator rom binary image
